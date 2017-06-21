@@ -1,7 +1,7 @@
 apply from: '../shared-build.gradle'
 
 dependencies {
-    compile 'com.mopub.volley:mopub-volley:1.1.0'
+    compile 'com.github.adxcorp:mopub-volley:v1.1.1'
 }
 
 project.description = 'MoPub Android SDK - Base'
