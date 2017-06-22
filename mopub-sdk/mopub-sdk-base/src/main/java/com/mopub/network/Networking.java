@@ -35,6 +35,7 @@ public class Networking {
     // See https://en.wikipedia.org/wiki/Double-checked_locking#Usage_in_Java
     // for more information.
     private volatile static MoPubRequestQueue sRequestQueue;
+    private volatile static MoPubRequestQueue sImageRequestQueue;
     private volatile static String sUserAgent;
     private volatile static MaxWidthImageLoader sMaxWidthImageLoader;
     private static boolean sUseHttps = false;
@@ -76,6 +77,37 @@ public class Networking {
     }
 
     @NonNull
+    public static MoPubRequestQueue getImageRequestQueue(@NonNull Context context) {
+        MoPubRequestQueue requestQueue = sImageRequestQueue;
+        // Double-check locking to initialize.
+        if (requestQueue == null) {
+            synchronized (Networking.class) {
+                requestQueue = sImageRequestQueue;
+                if (requestQueue == null) {
+
+                    // Guarantee ClientMetadata is set up.
+                    final ClientMetadata clientMetadata = ClientMetadata.getInstance(context);
+                    final HurlStack.UrlRewriter urlRewriter = new PlayServicesUrlRewriter(clientMetadata.getDeviceId(), context);
+                    final SSLSocketFactory socketFactory = CustomSSLSocketFactory.getDefault(Constants.TEN_SECONDS_MILLIS);
+
+                    final String userAgent = Networking.getUserAgent(context.getApplicationContext());
+                    HttpStack httpStack = new RequestQueueHttpStack(userAgent, urlRewriter, socketFactory);
+
+                    Network network = new BasicNetwork(httpStack);
+                    File volleyCacheDir = new File(context.getCacheDir().getPath() + File.separator
+                            + CACHE_DIRECTORY_NAME);
+                    Cache cache = new DiskBasedCache(volleyCacheDir, (int) DeviceUtils.diskCacheSizeBytes(volleyCacheDir, Constants.TEN_MB));
+                    requestQueue = new MoPubRequestQueue(cache, network);
+                    sImageRequestQueue = requestQueue;
+                    requestQueue.start();
+                }
+            }
+        }
+
+        return requestQueue;
+    }
+
+    @NonNull
     public static ImageLoader getImageLoader(@NonNull Context context) {
         MaxWidthImageLoader imageLoader = sMaxWidthImageLoader;
         // Double-check locking to initialize.
@@ -83,7 +115,7 @@ public class Networking {
             synchronized (Networking.class) {
                 imageLoader = sMaxWidthImageLoader;
                 if (imageLoader == null) {
-                    RequestQueue queue = getRequestQueue(context);
+                    RequestQueue queue = getImageRequestQueue(context);
                     int cacheSize = DeviceUtils.memoryCacheSizeBytes(context);
                     final LruCache<String, Bitmap> imageCache = new LruCache<String, Bitmap>(cacheSize) {
                         @Override
