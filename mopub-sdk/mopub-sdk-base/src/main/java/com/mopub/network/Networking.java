@@ -45,7 +45,7 @@ public class Networking {
         return sRequestQueue;
     }
 
-    @NonNull
+    @NonNull 
     public static MoPubRequestQueue getRequestQueue(@NonNull Context context) {
         MoPubRequestQueue requestQueue = sRequestQueue;
         // Double-check locking to initialize.
