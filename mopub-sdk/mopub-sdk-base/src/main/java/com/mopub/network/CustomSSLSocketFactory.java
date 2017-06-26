@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.mopub.common.Preconditions;
-import com.mopub.common.VisibleForTesting;
 import com.mopub.common.logging.MoPubLog;
 import com.mopub.common.util.Reflection;
 
@@ -116,16 +115,25 @@ public class CustomSSLSocketFactory extends SSLSocketFactory {
             throw new SocketException("SSLSocketFactory was null. Unable to create socket.");
         }
 
-        // Don't use the original socket and create a new one. This closes the original socket
-        // if the autoClose flag is set.
-        if (autoClose && socketParam != null) {
-            socketParam.close();
+        // There is a bug in Android before version 6.0 where SNI does not work, so we try to do
+        // it manually here.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // Don't use the original socket and create a new one. This closes the original socket
+            // if the autoClose flag is set.
+            if (autoClose && socketParam != null) {
+                socketParam.close();
+            }
+
+            final Socket socket = mCertificateSocketFactory.createSocket(
+                    InetAddressUtils.getInetAddressByName(host), port);
+            enableTlsIfAvailable(socket);
+            doManualServerNameIdentification(socket, host);
+            return socket;
         }
 
-        final Socket socket = mCertificateSocketFactory.createSocket(
-                InetAddressUtils.getInetAddressByName(host), port);
+        final Socket socket = mCertificateSocketFactory.createSocket(socketParam, host, port,
+                autoClose);
         enableTlsIfAvailable(socket);
-        doManualServerNameIdentification(socket, host);
         return socket;
     }
 
@@ -141,7 +149,7 @@ public class CustomSSLSocketFactory extends SSLSocketFactory {
      * @throws IOException
      */
     private void doManualServerNameIdentification(@NonNull final Socket socket,
-            @Nullable final String host) throws IOException {
+                                                  @Nullable final String host) throws IOException {
         Preconditions.checkNotNull(socket);
 
         if (mCertificateSocketFactory == null) {
@@ -160,9 +168,9 @@ public class CustomSSLSocketFactory extends SSLSocketFactory {
      * Calling setHostname on a socket turns on the server name identification feature.
      * Unfortunately, this was introduced in Android version 17, so we do what we can.
      */
-    @VisibleForTesting
+    @android.support.annotation.VisibleForTesting
     static void setHostnameOnSocket(@NonNull final SSLCertificateSocketFactory certificateSocketFactory,
-            @NonNull final SSLSocket sslSocket, @Nullable final String host) {
+                                    @NonNull final SSLSocket sslSocket, @Nullable final String host) {
         Preconditions.checkNotNull(certificateSocketFactory);
         Preconditions.checkNotNull(sslSocket);
 
@@ -182,9 +190,9 @@ public class CustomSSLSocketFactory extends SSLSocketFactory {
     /**
      * This actually performs server name identification.
      */
-    @VisibleForTesting
+    @android.support.annotation.VisibleForTesting
     static void verifyServerName(@NonNull final SSLSocket sslSocket,
-            @Nullable final String host) throws IOException {
+                                 @Nullable final String host) throws IOException {
         Preconditions.checkNotNull(sslSocket);
 
         sslSocket.startHandshake();
@@ -205,7 +213,7 @@ public class CustomSSLSocketFactory extends SSLSocketFactory {
     }
 
     @Deprecated
-    @VisibleForTesting
+    @android.support.annotation.VisibleForTesting
     void setCertificateSocketFactory(@NonNull final SSLSocketFactory sslSocketFactory) {
         mCertificateSocketFactory = sslSocketFactory;
     }
