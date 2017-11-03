@@ -6,7 +6,7 @@ repositories {
     flatDir {
         dirs project(':mopub-sdk').file('../libs')
     }
-    maven { url "https://s3.amazonaws.com/moat-sdk-builds" }
+    maven { url 'https://jitpack.io' }
     maven { url 'https://maven.google.com' }
 }
 
@@ -22,8 +22,8 @@ android {
     defaultConfig {
         versionCode 59
         versionName version
-        minSdkVersion 16
-        targetSdkVersion 26
+        minSdkVersion 15
+        targetSdkVersion 23
         consumerProguardFiles project(':mopub-sdk').file('proguard.txt')
     }
 
