@@ -416,4 +416,9 @@ public class AdRequest extends MoPubRequest<AdResponse> {
 
         return requestId;
     }
+
+    @Override
+    public Priority getPriority() {
+        return Priority.IMMEDIATE;
+    }
 }
