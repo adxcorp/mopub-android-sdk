@@ -402,4 +402,9 @@ public class AdRequest extends Request<AdResponse> {
                         .build()
         );
     }
+
+    @Override
+    public Priority getPriority() {
+        return Priority.IMMEDIATE;
+    }
 }
