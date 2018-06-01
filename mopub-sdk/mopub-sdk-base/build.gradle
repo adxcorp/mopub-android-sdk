@@ -4,12 +4,11 @@ repositories {
     flatDir {
         dirs './libs'
     }
-    maven { url 'https://jitpack.io' }
+    maven { url 'https://s3.amazonaws.com/moat-sdk-builds' }
 }
 
 dependencies {
-
-    compile 'com.github.adxcorp:mopub-volley:v1.1.1'
+    api 'com.mopub.volley:mopub-volley:2.0.0'
 
     def avidEnabled = project.hasProperty("mopub.avidEnabled") ? project.getProperty("mopub.avidEnabled").toBoolean() : true
     if (avidEnabled) {
