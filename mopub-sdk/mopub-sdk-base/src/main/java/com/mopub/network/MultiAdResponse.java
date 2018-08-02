@@ -466,4 +466,10 @@ public class MultiAdResponse implements Iterator<AdResponse> {
                 (AdType.REWARDED_VIDEO.equals(adType) && FullAdType.VAST.equals(fullAdType)) ||
                 AdType.REWARDED_PLAYABLE.equals(adType);
     }
+    
+    @Override
+    public Priority getPriority() {
+        return Priority.IMMEDIATE;
+    }
+
 }
