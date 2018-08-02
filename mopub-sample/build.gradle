@@ -4,7 +4,6 @@ repositories {
     flatDir {
         dirs '../libs'
     }
-    maven { url "https://s3.amazonaws.com/moat-sdk-builds" }
 }
 
 apply plugin: 'com.android.application'
@@ -21,7 +20,7 @@ android {
     defaultConfig {
         versionCode 62
         versionName version
-        minSdkVersion 16
+        minSdkVersion 14
         targetSdkVersion 26
     }
 
