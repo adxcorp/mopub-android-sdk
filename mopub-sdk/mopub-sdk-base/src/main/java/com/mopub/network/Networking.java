@@ -141,9 +141,7 @@ public class Networking {
                 userAgent = sUserAgent;
                 if (userAgent == null) {
                     try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            userAgent = WebSettings.getDefaultUserAgent(context);
-                        } else if (Looper.myLooper() == Looper.getMainLooper()) {
+                        if (Looper.myLooper() == Looper.getMainLooper()) {
                             // WebViews may only be instantiated on the UI thread. If anything goes
                             // wrong with getting a user agent, use the system-specific user agent.
                             userAgent = new WebView(context).getSettings().getUserAgentString();
