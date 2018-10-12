@@ -23,7 +23,7 @@ android {
     defaultConfig {
         versionCode 65
         versionName version
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 28
     }
 
