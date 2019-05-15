@@ -138,6 +138,7 @@ public class AdvertisingId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof AdvertisingId)) return false;
+        if (mAdvertisingId == null) return false;
 
         AdvertisingId that = (AdvertisingId) o;
 

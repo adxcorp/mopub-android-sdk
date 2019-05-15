@@ -155,4 +155,9 @@ public class MultiAdRequest extends MoPubRequest<MultiAdResponse> {
         }
         return hashCode;
     }
+
+    @Override
+    public Priority getPriority() {
+        return Priority.IMMEDIATE;
+    }
 }
