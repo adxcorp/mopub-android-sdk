@@ -5,8 +5,11 @@
 package com.mopub.mraid;
 
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.VisibleForTesting;
+import android.view.ViewGroup;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -46,5 +49,20 @@ public class MraidWebViewClient extends WebViewClient {
     private WebResourceResponse createMraidInjectionResponse() {
         InputStream data = new ByteArrayInputStream(MRAID_INJECTION_JAVASCRIPT.getBytes());
         return new WebResourceResponse("text/javascript", "UTF-8", data);
+    }
+
+    @Override
+    public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+        try {
+            super.onRenderProcessGone(view, detail);
+
+            if (view != null) {
+                ((ViewGroup) view.getParent()).removeView(view);
+                view.destroy();
+            }
+        } catch (Exception e) {
+        }
+
+        return true;
     }
 }
