@@ -5,7 +5,10 @@
 package com.mopub.mobileads;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.view.ViewGroup;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -38,7 +41,7 @@ class HtmlWebViewClient extends WebViewClient {
     private final String mClickthroughUrl;
 
     HtmlWebViewClient(HtmlWebViewListener htmlWebViewListener,
-            BaseHtmlWebView htmlWebView, String clickthrough, String dspCreativeId) {
+                      BaseHtmlWebView htmlWebView, String clickthrough, String dspCreativeId) {
         mHtmlWebViewListener = htmlWebViewListener;
         mHtmlWebView = htmlWebView;
         mClickthroughUrl = clickthrough;
@@ -54,7 +57,7 @@ class HtmlWebViewClient extends WebViewClient {
                 .withResultActions(new UrlHandler.ResultActions() {
                     @Override
                     public void urlHandlingSucceeded(@NonNull String url,
-                            @NonNull UrlAction urlAction) {
+                                                     @NonNull UrlAction urlAction) {
                         if (mHtmlWebView.wasClicked()) {
                             mHtmlWebViewListener.onClicked();
                             mHtmlWebView.onResetUserClick();
@@ -63,7 +66,7 @@ class HtmlWebViewClient extends WebViewClient {
 
                     @Override
                     public void urlHandlingFailed(@NonNull String url,
-                            @NonNull UrlAction lastFailedUrlAction) {
+                                                  @NonNull UrlAction lastFailedUrlAction) {
                     }
                 })
                 .withMoPubSchemeListener(new UrlHandler.MoPubSchemeListener() {
@@ -86,4 +89,20 @@ class HtmlWebViewClient extends WebViewClient {
                 .build().handleUrl(mContext, url, mHtmlWebView.wasClicked());
         return true;
     }
+
+    @Override
+    public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+        try {
+            super.onRenderProcessGone(view, detail);
+
+            if (view != null) {
+                ((ViewGroup) view.getParent()).removeView(view);
+                view.destroy();
+            }
+        } catch (Exception e) {
+        }
+
+        return true;
+    }
+
 }
