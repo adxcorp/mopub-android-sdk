@@ -406,14 +406,15 @@ public class MoPubView extends FrameLayout {
         final ViewGroup.LayoutParams layoutParams = getLayoutParams();
 
         // If WRAP_CONTENT or MATCH_PARENT
-        if (layoutParams != null && layoutParams.width < 0) {
+        if (getParent() != null && layoutParams != null && layoutParams.width < 0) {
             resolvedAdSize.x = ((View) getParent()).getWidth();
         }
 
         // MoPubAdSize only applies to height
         if (mMoPubAdSize != MoPubAdSize.MATCH_VIEW) {
-            resolvedAdSize.y = mMoPubAdSize.toInt();
-        } else if (layoutParams != null && layoutParams.height < 0) {
+            final float density = mContext.getResources().getDisplayMetrics().density;
+            resolvedAdSize.y = (int) (mMoPubAdSize.toInt() * density);
+        } else if (getParent() != null && layoutParams != null && layoutParams.height < 0) {
             resolvedAdSize.y = ((View) getParent()).getHeight();
         }
 
