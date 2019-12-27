@@ -4,11 +4,12 @@
 
 package com.mopub.nativeads;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.VisibleForTesting;
 import com.mopub.common.logging.MoPubLog;
@@ -16,23 +17,49 @@ import com.mopub.common.logging.MoPubLog;
 import static com.mopub.common.logging.MoPubLog.SdkLogEvent.ERROR;
 
 class StaticNativeViewHolder {
-    @Nullable View mainView;
-    @Nullable TextView titleView;
-    @Nullable TextView textView;
-    @Nullable TextView callToActionView;
-    @Nullable ImageView mainImageView;
-    @Nullable ImageView iconImageView;
-    @Nullable ImageView privacyInformationIconImageView;
+    @Nullable
+    View mainView;
+    @Nullable
+    TextView titleView;
+    @Nullable
+    TextView textView;
+    @Nullable
+    TextView callToActionView;
+    @Nullable
+    ImageView mainImageView;
+    @Nullable
+    ImageView iconImageView;
+    @Nullable
+    ImageView privacyInformationIconImageView;
 
     @VisibleForTesting
     static final StaticNativeViewHolder EMPTY_VIEW_HOLDER = new StaticNativeViewHolder();
 
     // Use fromViewBinder instead of a constructor
-    private StaticNativeViewHolder() {}
+    private StaticNativeViewHolder() {
+    }
+
+    public StaticNativeViewHolder(View view, ViewBinder viewBinder) {
+        mainView = view;
+        try {
+            titleView = (TextView) view.findViewById(viewBinder.titleId);
+            textView = (TextView) view.findViewById(viewBinder.textId);
+            callToActionView =
+                    (TextView) view.findViewById(viewBinder.callToActionId);
+            mainImageView =
+                    (ImageView) view.findViewById(viewBinder.mainImageId);
+            iconImageView =
+                    (ImageView) view.findViewById(viewBinder.iconImageId);
+            privacyInformationIconImageView =
+                    (ImageView) view.findViewById(viewBinder.privacyInformationIconImageId);
+        } catch (ClassCastException exception) {
+            MoPubLog.log(ERROR, "Could not cast from id in ViewBinder to expected View type", exception);
+        }
+    }
 
     @NonNull
     static StaticNativeViewHolder fromViewBinder(@NonNull final View view,
-            @NonNull final ViewBinder viewBinder) {
+                                                 @NonNull final ViewBinder viewBinder) {
         final StaticNativeViewHolder staticNativeViewHolder = new StaticNativeViewHolder();
         staticNativeViewHolder.mainView = view;
         try {
