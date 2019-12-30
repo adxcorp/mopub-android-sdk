@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import com.mopub.common.Preconditions;
 import com.mopub.common.VisibleForTesting;
 
+import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 import static android.view.View.VISIBLE;
@@ -22,11 +23,14 @@ import static android.view.View.VISIBLE;
  * An implementation of {@link com.mopub.nativeads.MoPubAdRenderer} for rendering native ads.
  */
 public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNativeAd> {
-    @NonNull private final ViewBinder mViewBinder;
+    @NonNull
+    private final ViewBinder mViewBinder;
 
     // This is used instead of View.setTag, which causes a memory leak in 2.3
     // and earlier: https://code.google.com/p/android/issues/detail?id=18273
-    @VisibleForTesting @NonNull final WeakHashMap<View, StaticNativeViewHolder> mViewHolderMap;
+    @VisibleForTesting
+    @NonNull
+    final WeakHashMap<View, WeakReference<StaticNativeViewHolder>> mViewHolderMap;
 
     /**
      * Constructs a native ad renderer with a view binder.
@@ -35,7 +39,7 @@ public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNative
      */
     public MoPubStaticNativeAdRenderer(@NonNull final ViewBinder viewBinder) {
         mViewBinder = viewBinder;
-        mViewHolderMap = new WeakHashMap<View, StaticNativeViewHolder>();
+        mViewHolderMap = new WeakHashMap<View, WeakReference<StaticNativeViewHolder>>();
     }
 
     @Override
@@ -48,18 +52,29 @@ public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNative
 
     @Override
     public void renderAdView(@NonNull final View view,
-            @NonNull final StaticNativeAd staticNativeAd) {
-        StaticNativeViewHolder staticNativeViewHolder = mViewHolderMap.get(view);
-        if (staticNativeViewHolder == null) {
+                             @NonNull final StaticNativeAd staticNativeAd) {
+        WeakReference<StaticNativeViewHolder> viewHolderWeakReference = mViewHolderMap.get(view);
+
+        StaticNativeViewHolder staticNativeViewHolder;
+        if (viewHolderWeakReference == null) {
             staticNativeViewHolder = StaticNativeViewHolder.fromViewBinder(view, mViewBinder);
-            mViewHolderMap.put(view, staticNativeViewHolder);
+            mViewHolderMap.put(view, new WeakReference(staticNativeViewHolder));
+        } else {
+            if (viewHolderWeakReference.get() == null) {
+                staticNativeViewHolder = StaticNativeViewHolder.fromViewBinder(view, mViewBinder);
+                mViewHolderMap.put(view, new WeakReference(staticNativeViewHolder));
+            } else {
+                staticNativeViewHolder = viewHolderWeakReference.get();
+            }
         }
 
-        update(staticNativeViewHolder, staticNativeAd);
-        NativeRendererHelper.updateExtras(staticNativeViewHolder.mainView,
-                mViewBinder.extras,
-                staticNativeAd.getExtras());
-        setViewVisibility(staticNativeViewHolder, VISIBLE);
+        if (staticNativeViewHolder != null) {
+            update(staticNativeViewHolder, staticNativeAd);
+            NativeRendererHelper.updateExtras(staticNativeViewHolder.mainView,
+                    mViewBinder.extras,
+                    staticNativeAd.getExtras());
+            setViewVisibility(staticNativeViewHolder, VISIBLE);
+        }
     }
 
     @Override
@@ -69,7 +84,7 @@ public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNative
     }
 
     private void update(@NonNull final StaticNativeViewHolder staticNativeViewHolder,
-            @NonNull final StaticNativeAd staticNativeAd) {
+                        @NonNull final StaticNativeAd staticNativeAd) {
         NativeRendererHelper.addTextView(staticNativeViewHolder.titleView,
                 staticNativeAd.getTitle());
         NativeRendererHelper.addTextView(staticNativeViewHolder.textView, staticNativeAd.getText());
@@ -86,7 +101,7 @@ public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNative
     }
 
     private void setViewVisibility(@NonNull final StaticNativeViewHolder staticNativeViewHolder,
-            final int visibility) {
+                                   final int visibility) {
         if (staticNativeViewHolder.mainView != null) {
             staticNativeViewHolder.mainView.setVisibility(visibility);
         }
