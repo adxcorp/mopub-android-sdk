@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -9,7 +9,6 @@ import androidx.annotation.Nullable;
 
 import com.mopub.common.Preconditions;
 import com.mopub.common.logging.MoPubLog;
-import com.mopub.common.util.Strings;
 import com.mopub.mobileads.util.XmlUtils;
 
 import org.w3c.dom.Node;
@@ -50,9 +49,10 @@ public class VideoViewabilityTrackerXmlManager {
         }
 
         Integer viewablePlaytimeMS = null;
-        if (Strings.isAbsoluteTracker(viewablePlaytimeStr)) {
+        if (VastAbsoluteProgressTracker.Companion.isAbsoluteTracker(viewablePlaytimeStr)) {
             try {
-                viewablePlaytimeMS = Strings.parseAbsoluteOffset(viewablePlaytimeStr);
+                viewablePlaytimeMS = VastAbsoluteProgressTracker.Companion
+                        .parseAbsoluteOffset(viewablePlaytimeStr);
             } catch (NumberFormatException e) {
                 MoPubLog.log(CUSTOM, String.format("Invalid VAST viewablePlaytime format " +
                         "for \"HH:MM:SS[.mmm]\": %s:", viewablePlaytimeStr));

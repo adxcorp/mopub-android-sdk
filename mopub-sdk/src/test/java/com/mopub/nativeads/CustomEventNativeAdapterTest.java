@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -47,7 +47,7 @@ public class CustomEventNativeAdapterTest {
 
         testAdResponse = new AdResponse.Builder()
                 .setAdType(AdType.STATIC_NATIVE)
-                .setCustomEventClassName("com.mopub.nativeads.MoPubCustomEventNative")
+                .setBaseAdClassName("com.mopub.nativeads.MoPubCustomEventNative")
                 .setClickTrackingUrl("clicktrackingurl")
                 .setResponseBody("body")
                 .setServerExtras(serverExtras)
@@ -75,7 +75,7 @@ public class CustomEventNativeAdapterTest {
     @Test
     public void loadNativeAd_withInvalidClassName_shouldNotifyListenerOfOnNativeAdFailedAndReturn() {
         testAdResponse = testAdResponse.toBuilder()
-                .setCustomEventClassName("com.mopub.baaad.invalidinvalid123143")
+                .setBaseAdClassName("com.mopub.baaad.invalidinvalid123143")
                 .build();
 
         subject.loadNativeAd(context, localExtras, testAdResponse);

@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -12,9 +12,9 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
+
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.mopub.common.CreativeOrientation;
 import com.mopub.common.IntentActions;
@@ -42,9 +42,6 @@ public class MraidVideoPlayerActivity extends BaseVideoPlayerActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         mBroadcastIdentifier = getBroadcastIdentifierFromIntent(getIntent());
 
         try {
@@ -53,7 +50,7 @@ public class MraidVideoPlayerActivity extends BaseVideoPlayerActivity implements
             // This can happen if the activity was started without valid intent extras. We leave
             // mBaseVideoController set to null, and finish the activity immediately.
 
-            broadcastAction(this, mBroadcastIdentifier, IntentActions.ACTION_INTERSTITIAL_FAIL);
+            broadcastAction(this, mBroadcastIdentifier, IntentActions.ACTION_FULLSCREEN_FAIL);
             finish();
             return;
         }
@@ -194,12 +191,14 @@ public class MraidVideoPlayerActivity extends BaseVideoPlayerActivity implements
         return intent.getLongExtra(BROADCAST_IDENTIFIER_KEY, -1);
     }
 
-    @Deprecated // for testing
+    @Deprecated
+    @VisibleForTesting
     BaseVideoViewController getBaseVideoViewController() {
         return mBaseVideoController;
     }
 
-    @Deprecated // for testing
+    @Deprecated
+    @VisibleForTesting
     void setBaseVideoViewController(final BaseVideoViewController baseVideoViewController) {
         mBaseVideoController = baseVideoViewController;
     }

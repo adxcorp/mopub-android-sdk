@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -114,7 +114,11 @@ public class MoPubNative {
      * Note that if multiple ad renderers support a specific native ad format, the first
      * one registered will be used.
      */
-    public void registerAdRenderer(MoPubAdRenderer moPubAdRenderer) {
+    public void registerAdRenderer(@NonNull MoPubAdRenderer moPubAdRenderer) {
+        if (!Preconditions.NoThrow.checkNotNull(moPubAdRenderer, "Can't register a null adRenderer")) {
+            return;
+        }
+
         mAdRendererRegistry.registerAdRenderer(moPubAdRenderer);
     }
 

@@ -1,13 +1,14 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads.test.support;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
 
-import com.mopub.common.AdReport;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mopub.mobileads.factories.MraidControllerFactory;
 import com.mopub.mraid.MraidController;
 import com.mopub.mraid.PlacementType;
@@ -27,8 +28,9 @@ public class TestMraidControllerFactory extends MraidControllerFactory {
 
     @Override
     protected MraidController internalCreate(@NonNull final Context context,
-            @NonNull AdReport adReport,
-            @NonNull final PlacementType placementType) {
+                                             @Nullable final String dspCreativeId,
+                                             @NonNull final PlacementType placementType,
+                                             final boolean allowCustomClose) {
         return mockMraidController;
     }
 }

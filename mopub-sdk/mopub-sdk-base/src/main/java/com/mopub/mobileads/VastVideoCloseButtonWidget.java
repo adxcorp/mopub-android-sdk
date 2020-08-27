@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -6,19 +6,20 @@ package com.mopub.mobileads;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import com.mopub.common.VisibleForTesting;
 import com.mopub.common.logging.MoPubLog;
 import com.mopub.common.util.Dips;
-import com.mopub.common.util.Utils;
-import com.mopub.mobileads.resource.CloseButtonDrawable;
+import com.mopub.mobileads.base.R;
 import com.mopub.mobileads.resource.DrawableConstants;
 import com.mopub.network.Networking;
 import com.mopub.volley.VolleyError;
@@ -26,13 +27,13 @@ import com.mopub.volley.toolbox.ImageLoader;
 
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM;
-import static com.mopub.common.logging.MoPubLog.SdkLogEvent.ERROR;
+import static com.mopub.common.logging.MoPubLog.SdkLogEvent.ERROR_WITH_THROWABLE;
 
 public class VastVideoCloseButtonWidget extends RelativeLayout {
     @NonNull private TextView mTextView;
     @NonNull private ImageView mImageView;
     @NonNull private final ImageLoader mImageLoader;
-    @NonNull private CloseButtonDrawable mCloseButtonDrawable;
+    private boolean mHasCustomImage;
 
     private final int mEdgePadding;
     private final int mTextRightMargin;
@@ -42,14 +43,13 @@ public class VastVideoCloseButtonWidget extends RelativeLayout {
     public VastVideoCloseButtonWidget(@NonNull final Context context) {
         super(context);
 
-        setId((int) Utils.generateUniqueId());
+        setId(View.generateViewId());
 
         mEdgePadding = Dips.dipsToIntPixels(DrawableConstants.CloseButton.EDGE_PADDING, context);
         mImagePadding = Dips.dipsToIntPixels(DrawableConstants.CloseButton.IMAGE_PADDING_DIPS, context);
         mWidgetHeight = Dips.dipsToIntPixels(DrawableConstants.CloseButton.WIDGET_HEIGHT_DIPS, context);
         mTextRightMargin = Dips.dipsToIntPixels(DrawableConstants.CloseButton.TEXT_RIGHT_MARGIN_DIPS, context);
 
-        mCloseButtonDrawable = new CloseButtonDrawable();
         mImageLoader = Networking.getImageLoader(context);
 
         createImageView();
@@ -65,15 +65,15 @@ public class VastVideoCloseButtonWidget extends RelativeLayout {
 
     private void createImageView() {
         mImageView = new ImageView(getContext());
-        mImageView.setId((int) Utils.generateUniqueId());
+        mImageView.setId(View.generateViewId());
 
         final RelativeLayout.LayoutParams iconLayoutParams = new RelativeLayout.LayoutParams(
                 mWidgetHeight,
                 mWidgetHeight);
 
         iconLayoutParams.addRule(ALIGN_PARENT_RIGHT);
-
-        mImageView.setImageDrawable(mCloseButtonDrawable);
+        mImageView.setImageDrawable(
+                ContextCompat.getDrawable(getContext(), R.drawable.ic_mopub_skip_button));
         mImageView.setPadding(mImagePadding, mImagePadding + mEdgePadding, mImagePadding + mEdgePadding, mImagePadding);
         addView(mImageView, iconLayoutParams);
     }
@@ -115,6 +115,7 @@ public class VastVideoCloseButtonWidget extends RelativeLayout {
                 Bitmap bitmap = imageContainer.getBitmap();
                 if (bitmap != null) {
                     mImageView.setImageBitmap(bitmap);
+                    mHasCustomImage = true;
                 } else {
                     MoPubLog.log(CUSTOM, String.format("%s returned null bitmap", imageUrl));
                 }
@@ -122,7 +123,7 @@ public class VastVideoCloseButtonWidget extends RelativeLayout {
 
             @Override
             public void onErrorResponse(final VolleyError volleyError) {
-                MoPubLog.log(ERROR, "Failed to load image.", volleyError);
+                MoPubLog.log(ERROR_WITH_THROWABLE, "Failed to load image.", volleyError);
             }
         });
     }
@@ -130,6 +131,13 @@ public class VastVideoCloseButtonWidget extends RelativeLayout {
     void setOnTouchListenerToContent(@Nullable View.OnTouchListener onTouchListener) {
         mImageView.setOnTouchListener(onTouchListener);
         mTextView.setOnTouchListener(onTouchListener);
+    }
+
+    void notifyVideoComplete() {
+        if (!mHasCustomImage) {
+            mImageView.setImageDrawable(
+                    ContextCompat.getDrawable(getContext(), R.drawable.ic_mopub_close_button));
+        }
     }
 
     // for testing

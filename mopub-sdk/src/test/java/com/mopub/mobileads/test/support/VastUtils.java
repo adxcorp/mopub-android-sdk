@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -28,8 +28,8 @@ public class VastUtils {
 
     public static List<VastTracker> stringsToVastTrackers(String... strings) {
         List<VastTracker> vastTrackers = new ArrayList<VastTracker>(strings.length);
-        for (int i=0; i<strings.length; i++) {
-            vastTrackers.add(new VastTracker(strings[i]));
+        for (int i = 0; i < strings.length; i++) {
+            vastTrackers.add(new VastTracker.Builder(strings[i]).build());
         }
         return vastTrackers;
     }

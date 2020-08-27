@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -9,6 +9,7 @@ public enum ResponseHeader {
     BACKOFF_MS("backoff_ms"),
     AD_TIMEOUT("x-ad-timeout-ms"),
     AD_TYPE("x-adtype"),
+    AD_GROUP_ID("x-adgroupid"),
     ADUNIT_FORMAT("adunit-format"),
     IMPRESSION_DATA("impdata"),
     CLICK_TRACKING_URL("x-clickthrough"),
@@ -85,7 +86,13 @@ public enum ResponseHeader {
     FORCE_GDPR_APPLIES("force_gdpr_applies"),
 
     // Enable logging with rewrite
-    ENABLE_DEBUG_LOGGING("enable_debug_logging");
+    ENABLE_DEBUG_LOGGING("enable_debug_logging"),
+
+    // Experiment keys
+    VAST_CLICK_ENABLED("vast-click-enabled"),
+
+    // Mraid Custom Close
+    ALLOW_CUSTOM_CLOSE("allow-custom-close");
 
     private final String key;
     ResponseHeader(String key) {

@@ -43,10 +43,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/ad_unit_hint" />
+            android:hint="@string/ad_unit_hint"
+            android:inputType="text" />
 
     </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -65,7 +65,29 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/ad_unit_name_hint" />
+            android:hint="@string/ad_unit_name_hint"
+            android:inputType="text" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_large"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="85dp"
+            android:layout_height="wrap_content"
+            android:text="@string/ad_unit_keywords"
+            android:textSize="@dimen/small_text_size" />
+
+        <EditText
+            android:id="@+id/add_ad_unit_keywords"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/ad_unit_keywords_hint"
+            android:inputType="text" />
     </LinearLayout>
 
 </LinearLayout>

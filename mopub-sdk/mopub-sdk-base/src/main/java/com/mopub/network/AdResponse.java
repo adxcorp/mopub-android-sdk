@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -19,11 +19,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import static com.mopub.common.Constants.VIDEO_CONTROLLER_ONE;
+
 public class AdResponse implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Nullable
     private final String mAdType;
+
+    @Nullable
+    private final String mAdGroupId;
 
     @Nullable
     private final String mAdUnitId;
@@ -73,6 +78,10 @@ public class AdResponse implements Serializable {
     @Nullable
     private final Integer mRefreshTimeMillis;
     @Nullable
+    private final String mBannerImpressionMinVisibleDips;
+    @Nullable
+    private final String mBannerImpressionMinVisibleMs;
+    @Nullable
     private final String mDspCreativeId;
 
     @Nullable
@@ -81,7 +90,7 @@ public class AdResponse implements Serializable {
     private final JSONObject mJsonBody;
 
     @Nullable
-    private final String mCustomEventClassName;
+    private final String mBaseAdClassName;
     @Nullable
     private final BrowserAgent mBrowserAgent;
     @NonNull
@@ -89,9 +98,12 @@ public class AdResponse implements Serializable {
 
     private final long mTimestamp;
 
+    private final boolean mAllowCustomClose;
+
     private AdResponse(@NonNull Builder builder) {
 
         mAdType = builder.adType;
+        mAdGroupId = builder.adGroupId;
         mAdUnitId = builder.adUnitId;
         mFullAdType = builder.fullAdType;
         mNetworkType = builder.networkType;
@@ -116,13 +128,16 @@ public class AdResponse implements Serializable {
         mHeight = builder.height;
         mAdTimeoutDelayMillis = builder.adTimeoutDelayMillis;
         mRefreshTimeMillis = builder.refreshTimeMillis;
+        mBannerImpressionMinVisibleDips = builder.bannerImpressionMinVisibleDips;
+        mBannerImpressionMinVisibleMs = builder.bannerImpressionMinVisibleMs;
         mDspCreativeId = builder.dspCreativeId;
         mResponseBody = builder.responseBody;
         mJsonBody = builder.jsonBody;
-        mCustomEventClassName = builder.customEventClassName;
+        mBaseAdClassName = builder.customEventClassName;
         mBrowserAgent = builder.browserAgent;
         mServerExtras = builder.serverExtras;
         mTimestamp = DateAndTime.now().getTime();
+        mAllowCustomClose = builder.allowCustomClose;
     }
 
     public boolean hasJson() {
@@ -142,6 +157,11 @@ public class AdResponse implements Serializable {
     @Nullable
     public String getAdType() {
         return mAdType;
+    }
+
+    @Nullable
+    public String getAdGroupId() {
+        return mAdGroupId;
     }
 
     @Nullable
@@ -258,13 +278,29 @@ public class AdResponse implements Serializable {
     }
 
     @Nullable
+    public String getImpressionMinVisibleDips() {
+        return mBannerImpressionMinVisibleDips;
+    }
+
+    @Nullable
+    public String getImpressionMinVisibleMs() {
+        return mBannerImpressionMinVisibleMs;
+    }
+
+    @Nullable
     public String getDspCreativeId() {
         return mDspCreativeId;
     }
 
     @Nullable
+    @Deprecated
     public String getCustomEventClassName() {
-        return mCustomEventClassName;
+        return getBaseAdClassName();
+    }
+
+    @Nullable
+    public String getBaseAdClassName() {
+        return mBaseAdClassName;
     }
 
     @Nullable
@@ -280,9 +316,14 @@ public class AdResponse implements Serializable {
         return mTimestamp;
     }
 
+    public boolean allowCustomClose() {
+        return mAllowCustomClose;
+    }
+
     public Builder toBuilder() {
         return new Builder()
                 .setAdType(mAdType)
+                .setAdGroupId(mAdGroupId)
                 .setNetworkType(mNetworkType)
                 .setRewardedVideoCurrencyName(mRewardedVideoCurrencyName)
                 .setRewardedVideoCurrencyAmount(mRewardedVideoCurrencyAmount)
@@ -290,6 +331,7 @@ public class AdResponse implements Serializable {
                 .setRewardedVideoCompletionUrl(mRewardedVideoCompletionUrl)
                 .setRewardedDuration(mRewardedDuration)
                 .setShouldRewardOnClick(mShouldRewardOnClick)
+                .setAllowCustomClose(mAllowCustomClose)
                 .setImpressionData(mImpressionData)
                 .setClickTrackingUrl(mClickTrackingUrl)
                 .setImpressionTrackingUrls(mImpressionTrackingUrls)
@@ -301,16 +343,20 @@ public class AdResponse implements Serializable {
                 .setDimensions(mWidth, mHeight)
                 .setAdTimeoutDelayMilliseconds(mAdTimeoutDelayMillis)
                 .setRefreshTimeMilliseconds(mRefreshTimeMillis)
+                .setBannerImpressionMinVisibleDips(mBannerImpressionMinVisibleDips)
+                .setBannerImpressionMinVisibleMs(mBannerImpressionMinVisibleMs)
                 .setDspCreativeId(mDspCreativeId)
                 .setResponseBody(mResponseBody)
                 .setJsonBody(mJsonBody)
-                .setCustomEventClassName(mCustomEventClassName)
+                .setBaseAdClassName(mBaseAdClassName)
                 .setBrowserAgent(mBrowserAgent)
+                .setAllowCustomClose(mAllowCustomClose)
                 .setServerExtras(mServerExtras);
     }
 
     public static class Builder {
         private String adType;
+        private String adGroupId;
         private String adUnitId;
         private String fullAdType;
         private String networkType;
@@ -336,6 +382,8 @@ public class AdResponse implements Serializable {
         private Integer height;
         private Integer adTimeoutDelayMillis;
         private Integer refreshTimeMillis;
+        private String bannerImpressionMinVisibleDips;
+        private String bannerImpressionMinVisibleMs;
         private String dspCreativeId;
 
         private String responseBody;
@@ -346,8 +394,15 @@ public class AdResponse implements Serializable {
 
         private Map<String, String> serverExtras = new TreeMap<>();
 
+        private boolean allowCustomClose = false;
+
         public Builder setAdType(@Nullable final String adType) {
             this.adType = adType;
+            return this;
+        }
+
+        public Builder setAdGroupId(@Nullable final String adGroupId) {
+            this.adGroupId = adGroupId;
             return this;
         }
 
@@ -466,6 +521,16 @@ public class AdResponse implements Serializable {
             return this;
         }
 
+        public Builder setBannerImpressionMinVisibleDips(@Nullable final String bannerImpressionMinVisibleDips) {
+            this.bannerImpressionMinVisibleDips = bannerImpressionMinVisibleDips;
+            return this;
+        }
+
+        public Builder setBannerImpressionMinVisibleMs(@Nullable final String bannerImpressionMinVisibleMs) {
+            this.bannerImpressionMinVisibleMs = bannerImpressionMinVisibleMs;
+            return this;
+        }
+
         public Builder setDspCreativeId(@Nullable final String dspCreativeId) {
             this.dspCreativeId = dspCreativeId;
             return this;
@@ -481,7 +546,7 @@ public class AdResponse implements Serializable {
             return this;
         }
 
-        public Builder setCustomEventClassName(@Nullable final String customEventClassName) {
+        public Builder setBaseAdClassName(@Nullable final String customEventClassName) {
             this.customEventClassName = customEventClassName;
             return this;
         }
@@ -497,6 +562,11 @@ public class AdResponse implements Serializable {
             } else {
                 this.serverExtras = new TreeMap<>(serverExtras);
             }
+            return this;
+        }
+
+        public Builder setAllowCustomClose(final boolean allow) {
+            allowCustomClose = allow;
             return this;
         }
 

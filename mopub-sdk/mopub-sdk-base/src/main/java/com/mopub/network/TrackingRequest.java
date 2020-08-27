@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -11,7 +11,6 @@ import android.text.TextUtils;
 
 import com.mopub.common.Preconditions;
 import com.mopub.common.logging.MoPubLog;
-import com.mopub.common.util.Utils;
 import com.mopub.mobileads.VastErrorCode;
 import com.mopub.mobileads.VastMacroHelper;
 import com.mopub.mobileads.VastTracker;

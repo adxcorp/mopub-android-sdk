@@ -1,8 +1,10 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.common.util;
+
+import androidx.annotation.VisibleForTesting;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,7 +14,8 @@ import java.util.TimeZone;
 public class DateAndTime {
     protected static DateAndTime instance = new DateAndTime();
 
-    @Deprecated // for testing
+    @Deprecated
+    @VisibleForTesting
     public static void setInstance(DateAndTime newInstance) {
         instance = newInstance;
     }

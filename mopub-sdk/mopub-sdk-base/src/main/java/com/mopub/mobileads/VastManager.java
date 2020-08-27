@@ -1,15 +1,16 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.mopub.common.CacheService;
 import com.mopub.common.Preconditions;
@@ -19,7 +20,7 @@ import com.mopub.common.util.AsyncTasks;
 import com.mopub.mobileads.VideoDownloader.VideoDownloaderListener;
 
 import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM;
-import static com.mopub.common.logging.MoPubLog.SdkLogEvent.ERROR;
+import static com.mopub.common.logging.MoPubLog.SdkLogEvent.ERROR_WITH_THROWABLE;
 
 /**
  * Given a VAST xml document, this class manages the lifecycle of parsing and finding a video and
@@ -39,14 +40,17 @@ public class VastManager implements VastXmlManagerAggregator.VastXmlManagerAggre
          * when the VAST document is invalid.
          *
          * @param vastVideoConfig A configuration that can be used for displaying a VAST
-         *                               video or {@code null} if the VAST document is invalid.
+         *                        video or {@code null} if the VAST document is invalid.
          */
         void onVastVideoConfigurationPrepared(@Nullable final VastVideoConfig vastVideoConfig);
     }
 
-    @Nullable private VastManagerListener mVastManagerListener;
-    @Nullable private VastXmlManagerAggregator mVastXmlManagerAggregator;
-    @Nullable private String mDspCreativeId;
+    @Nullable
+    private VastManagerListener mVastManagerListener;
+    @Nullable
+    private VastXmlManagerAggregator mVastXmlManagerAggregator;
+    @Nullable
+    private String mDspCreativeId;
     private double mScreenAspectRatio;
     private int mScreenWidthDp;
 
@@ -60,14 +64,14 @@ public class VastManager implements VastXmlManagerAggregator.VastXmlManagerAggre
     /**
      * Creates and starts an async task that parses the VAST xml document.
      *
-     * @param vastXml The initial VAST xml document
+     * @param vastXml             The initial VAST xml document
      * @param vastManagerListener Notified when a video configuration has been found or when
      *                            the VAST document is invalid
      */
     public void prepareVastVideoConfiguration(@Nullable final String vastXml,
-            @NonNull final VastManagerListener vastManagerListener,
-            @Nullable String dspCreativeId,
-            @NonNull final Context context) {
+                                              @NonNull final VastManagerListener vastManagerListener,
+                                              @Nullable String dspCreativeId,
+                                              @NonNull final Context context) {
         Preconditions.checkNotNull(vastManagerListener, "vastManagerListener cannot be null");
         Preconditions.checkNotNull(context, "context cannot be null");
 
@@ -82,7 +86,7 @@ public class VastManager implements VastXmlManagerAggregator.VastXmlManagerAggre
             try {
                 AsyncTasks.safeExecuteOnExecutor(mVastXmlManagerAggregator, vastXml);
             } catch (Exception e) {
-                MoPubLog.log(ERROR, "Failed to aggregate vast xml", e);
+                MoPubLog.log(ERROR_WITH_THROWABLE, "Failed to aggregate vast xml", e);
                 mVastManagerListener.onVastVideoConfigurationPrepared(null);
             }
         }

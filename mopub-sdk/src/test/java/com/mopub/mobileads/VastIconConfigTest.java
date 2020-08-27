@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -104,7 +104,7 @@ public class VastIconConfigTest {
         assertThat(startedActivity.getComponent().getClassName())
                 .isEqualTo("com.mopub.common.MoPubBrowser");
         assertThat(startedActivity.getStringExtra(MoPubBrowser.DESTINATION_URL_KEY))
-                .isEqualTo("https://www.mopub.com/");
+                .isEqualTo("https://www.mopub.com/en");
         assertThat(startedActivity.getStringExtra(MoPubBrowser.DSP_CREATIVE_ID))
                 .isEqualTo("dspCreativeId");
         assertThat(startedActivity.getData()).isNull();

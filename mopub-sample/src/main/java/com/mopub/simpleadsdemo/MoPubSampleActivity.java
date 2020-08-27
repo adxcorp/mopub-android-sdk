@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -8,6 +8,10 @@ import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.webkit.WebView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -18,12 +22,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 
-import android.view.Menu;
-import android.view.MenuItem;
-import android.webkit.WebView;
-
 import com.google.android.material.navigation.NavigationView;
-import com.mopub.common.Constants;
 import com.mopub.common.MoPub;
 import com.mopub.common.SdkConfiguration;
 import com.mopub.common.SdkInitializationListener;
@@ -34,7 +33,7 @@ import com.mopub.common.privacy.ConsentStatus;
 import com.mopub.common.privacy.ConsentStatusChangeListener;
 import com.mopub.common.privacy.PersonalInfoManager;
 import com.mopub.common.util.DeviceUtils;
-import com.mopub.common.util.Reflection;
+import com.mopub.mobileads.MoPubConversionTracker;
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.network.ImpressionData;
 import com.mopub.network.ImpressionListener;
@@ -42,7 +41,6 @@ import com.mopub.network.ImpressionsEmitter;
 
 import org.json.JSONException;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -56,6 +54,7 @@ import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM_WITH_THROWABL
 
 public class MoPubSampleActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
     private static final List<String> REQUIRED_DANGEROUS_PERMISSIONS = new ArrayList<>();
     private static final String SHOWING_CONSENT_DIALOG_KEY = "ShowingConsentDialog";
 
@@ -176,6 +175,7 @@ public class MoPubSampleActivity extends AppCompatActivity
 
     @Override
     public void onNewIntent(@NonNull final Intent intent) {
+        super.onNewIntent(intent);
         mDeeplinkIntent = intent;
     }
 
@@ -198,6 +198,7 @@ public class MoPubSampleActivity extends AppCompatActivity
                 if (mPersonalInfoManager != null && mPersonalInfoManager.shouldShowConsentDialog()) {
                     mPersonalInfoManager.loadConsentDialog(initDialogLoadListener());
                 }
+                new MoPubConversionTracker(MoPubSampleActivity.this).reportAppOpen();
             }
         };
     }
@@ -247,8 +248,6 @@ public class MoPubSampleActivity extends AppCompatActivity
     /*
         MoPub Sample specific test code
      */
-    private static final String PROD_HOST = Constants.HOST;
-    private static final String TEST_HOST = "ads-staging.mopub.com";
     private static final String PRIVACY_FRAGMENT_TAG = "privacy_info_fragment";
     private static final String NETWORKS_FRAGMENT_TAG = "networks_info_fragment";
     private static final String LIST_FRAGMENT_TAG = "list_fragment";
@@ -275,10 +274,7 @@ public class MoPubSampleActivity extends AppCompatActivity
     private void syncNavigationMenu() {
         final NavigationView navigationView = findViewById(R.id.nav_view);
 
-        final String host = Constants.HOST;
-        final boolean production = PROD_HOST.equalsIgnoreCase(host);
-        navigationView.getMenu().findItem(R.id.nav_production).setChecked(production);
-        navigationView.getMenu().findItem(R.id.nav_staging).setChecked(!production);
+        SampleActivityInternalUtils.updateEndpointMenu(navigationView.getMenu());
 
         final PersonalInfoManager manager = MoPub.getPersonalInformationManager();
         if (manager != null) {
@@ -311,13 +307,8 @@ public class MoPubSampleActivity extends AppCompatActivity
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        SampleActivityInternalUtils.handleEndpointMenuSelection(menuItem);
         switch (menuItem.getItemId()) {
-            case R.id.nav_production:
-                onNavEnvironemnt(true);
-                break;
-            case R.id.nav_staging:
-                onNavEnvironemnt(false);
-                break;
             case R.id.nav_privacy_info:
                 onNavPrivacyInfo();
                 break;
@@ -370,10 +361,6 @@ public class MoPubSampleActivity extends AppCompatActivity
         }
     }
 
-    private void onNavEnvironemnt(boolean production) {
-        setEndpoint(production ? PROD_HOST : TEST_HOST);
-    }
-
     private void onNavPrivacyInfo() {
         final FragmentManager manager = getSupportFragmentManager();
         if (manager.findFragmentByTag(PRIVACY_FRAGMENT_TAG) == null) {
@@ -417,14 +404,7 @@ public class MoPubSampleActivity extends AppCompatActivity
         }
     }
 
-    private void setEndpoint(@NonNull String host) {
-        try {
-            Field field = Reflection.getPrivateField(com.mopub.common.Constants.class, "HOST");
-            field.set(null, host);
-        } catch (Exception e) {
-            MoPubLog.log(CUSTOM_WITH_THROWABLE, "Can't change HOST.", e);
-        }
-    }
+
 
     private void onClearLogs() {
         FragmentManager manager = getSupportFragmentManager();
@@ -439,10 +419,10 @@ public class MoPubSampleActivity extends AppCompatActivity
         return new ImpressionListener() {
             @Override
             public void onImpression(@NonNull final String adUnitId, @Nullable final ImpressionData impressionData) {
-                MoPubLog.log(CUSTOM, "impression for adUnitId= " + adUnitId);
+                MoPubLog.log(CUSTOM, "impression for adUnitId: " + adUnitId);
 
                 if (impressionData == null) {
-                    mImpressionsList.addFirst("adUnitId= " + adUnitId + "\ndata= null");
+                    mImpressionsList.addFirst("adUnitId: " + adUnitId + "\ndata= null");
                 } else {
                     try {
                         mImpressionsList.addFirst(impressionData.getJsonRepresentation().toString(2));

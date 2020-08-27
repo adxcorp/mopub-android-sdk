@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -160,10 +160,6 @@ public abstract class BaseUrlGenerator {
 
     protected void setAppVersion(String appVersion) {
         addParam("av", appVersion);
-    }
-
-    protected void setExternalStoragePermission(boolean isExternalStoragePermissionGranted) {
-        addParam("android_perms_ext_storage", isExternalStoragePermissionGranted ? "1" : "0");
     }
 
     protected void setDeviceInfo(String... info) {

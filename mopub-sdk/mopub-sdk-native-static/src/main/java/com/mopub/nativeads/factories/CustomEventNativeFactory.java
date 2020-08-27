@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -6,6 +6,7 @@ package com.mopub.nativeads.factories;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import com.mopub.common.Preconditions;
 import com.mopub.nativeads.CustomEventNative;
@@ -26,7 +27,8 @@ public class CustomEventNativeFactory {
         }
     }
 
-    @Deprecated // for testing
+    @Deprecated
+    @VisibleForTesting
     public static void setInstance(
             @NonNull final CustomEventNativeFactory customEventNativeFactory) {
         Preconditions.checkNotNull(customEventNativeFactory);

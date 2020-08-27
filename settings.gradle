@@ -1,8 +1,8 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
 rootProject.name = 'mopub-android'
 include ':mopub-sdk', ':mopub-sample', ':mopub-sdk:mopub-sdk-base', ':mopub-sdk:mopub-sdk-banner',
-        ':mopub-sdk:mopub-sdk-interstitial', ':mopub-sdk:mopub-sdk-rewardedvideo',
+        ':mopub-sdk:mopub-sdk-fullscreen',
         ':mopub-sdk:mopub-sdk-native-static', ':mopub-sdk:mopub-sdk-native-video'

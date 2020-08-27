@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -8,10 +8,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.view.View;
 
 import com.mopub.common.CreativeOrientation;
 import com.mopub.common.test.support.SdkTestRunner;
 import com.mopub.common.util.Utils;
+import com.mopub.common.util.UtilsTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,16 +49,24 @@ public class BaseVideoPlayerActivityTest {
     }
 
     @Test
+    public void start_callsHideNavigationBar(){
+        Activity subject = Robolectric.buildActivity(BaseVideoPlayerActivity.class).create().start().get();
+        View decorView = subject.getWindow().getDecorView();
+
+        assertThat(decorView.getSystemUiVisibility()).isEqualTo(UtilsTest.FLAGS);
+    }
+
+    @Test
     public void startMraid_shouldStartMraidVideoPlayerActivity() throws Exception {
         startMraid(Robolectric.buildActivity(Activity.class).create().get(), MRAID_VIDEO_URL);
         assertMraidVideoPlayerActivityStarted(MraidVideoPlayerActivity.class, MRAID_VIDEO_URL);
     }
 
     @Test
-    public void startVast_shouldStartMraidVideoPlayerActivity() throws Exception {
+    public void startVast_withVastVideoConfig_shouldStartMraidVideoPlayerActivity() throws Exception {
         startVast(Robolectric.buildActivity(Activity.class).create().get(), mVastVideoConfig,
                 testBroadcastIdentifier, mOrientation);
-        assertVastVideoPlayerActivityStarted(MraidVideoPlayerActivity.class, mVastVideoConfig,
+        assertVastVideoPlayerActivityStartedWithVastVideoConfig(MraidVideoPlayerActivity.class, mVastVideoConfig,
                 testBroadcastIdentifier);
     }
 
@@ -73,9 +83,9 @@ public class BaseVideoPlayerActivityTest {
         verifyNoMoreInteractions(mockAudioManager);
     }
 
-    static void assertVastVideoPlayerActivityStarted(final Class clazz,
-            final VastVideoConfig vastVideoConfig,
-            final long broadcastIdentifier) {
+    static void assertVastVideoPlayerActivityStartedWithVastVideoConfig(final Class clazz,
+                                                     final VastVideoConfig vastVideoConfig,
+                                                     final long broadcastIdentifier) {
         final Intent intent = ShadowApplication.getInstance().getNextStartedActivity();
         assertIntentAndBroadcastIdentifierAreCorrect(intent, clazz, broadcastIdentifier);
 

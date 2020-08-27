@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayer.ExoPlayerMessage;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.PlayerMessage;
 import com.google.android.exoplayer2.Renderer;
@@ -324,7 +323,7 @@ public class NativeVideoControllerTest {
 
         subject.setAudioVolume(0.3f);
 
-        verify(mockExoPlayer, never()).sendMessages(any(ExoPlayerMessage.class));
+        verify(mockExoPlayer, never()).createMessage(any(PlayerMessage.Target.class));
     }
 
     @Test
@@ -633,8 +632,8 @@ public class NativeVideoControllerTest {
         when(mockExoPlayer.getDuration()).thenReturn(25L);
         when(mockExoPlayer.getPlayWhenReady()).thenReturn(true);
 
-        VastTracker vastTracker = new VastTracker("vastTrackingUrl");
-        List<VastTracker> vastTrackers = new ArrayList<VastTracker>();
+        VastTracker vastTracker = new VastTracker.Builder("vastTrackingUrl").build();
+        List<VastTracker> vastTrackers = new ArrayList<>();
         vastTrackers.add(vastTracker);
         when(mockVastVideoConfig.getUntriggeredTrackersBefore(10, 25)).thenReturn(vastTrackers);
 
@@ -655,8 +654,8 @@ public class NativeVideoControllerTest {
         when(mockExoPlayer.getDuration()).thenReturn(25L);
         when(mockExoPlayer.getPlayWhenReady()).thenReturn(true);
 
-        VastTracker vastTracker = new VastTracker("vastTrackingUrl");
-        List<VastTracker> vastTrackers = new ArrayList<VastTracker>();
+        VastTracker vastTracker = new VastTracker.Builder("vastTrackingUrl").build();
+        List<VastTracker> vastTrackers = new ArrayList<>();
         vastTrackers.add(vastTracker);
         when(mockVastVideoConfig.getUntriggeredTrackersBefore(10, 25)).thenReturn(vastTrackers);
         nativeVideoProgressRunnable.setUpdateIntervalMillis(10);
@@ -679,8 +678,8 @@ public class NativeVideoControllerTest {
         when(mockExoPlayer.getDuration()).thenReturn(25L);
         when(mockExoPlayer.getPlayWhenReady()).thenReturn(false);
 
-        VastTracker vastTracker = new VastTracker("vastTrackingUrl");
-        List<VastTracker> vastTrackers = new ArrayList<VastTracker>();
+        VastTracker vastTracker = new VastTracker.Builder("vastTrackingUrl").build();
+        List<VastTracker> vastTrackers = new ArrayList<>();
         vastTrackers.add(vastTracker);
         when(mockVastVideoConfig.getUntriggeredTrackersBefore(10, 25)).thenReturn(vastTrackers);
         nativeVideoProgressRunnable.setUpdateIntervalMillis(10);

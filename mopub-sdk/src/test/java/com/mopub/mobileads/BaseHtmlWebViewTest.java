@@ -1,17 +1,14 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads;
 
 import android.app.Activity;
-import android.os.Build.VERSION_CODES;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.mopub.TestSdkHelper;
-import com.mopub.common.AdReport;
 import com.mopub.common.Constants;
 import com.mopub.common.test.support.SdkTestRunner;
 
@@ -21,7 +18,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
-import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowWebView;
 
 import static android.webkit.WebSettings.PluginState;
@@ -33,8 +29,6 @@ import static org.mockito.Mockito.verify;
 @RunWith(SdkTestRunner.class)
 public class BaseHtmlWebViewTest {
 
-    @Mock
-    AdReport mockAdReport;
     private BaseHtmlWebView subject;
     private MotionEvent touchDown;
     private MotionEvent touchUp;
@@ -43,32 +37,15 @@ public class BaseHtmlWebViewTest {
     @Before
     public void setUp() throws Exception {
         testActivity = Robolectric.buildActivity(Activity.class).create().get();
-        subject = new BaseHtmlWebView(testActivity, mockAdReport);
+        subject = new BaseHtmlWebView(testActivity);
 
         touchDown = createMotionEvent(MotionEvent.ACTION_DOWN);
         touchUp = createMotionEvent(MotionEvent.ACTION_UP);
     }
 
-    @Config(sdk = VERSION_CODES.JELLY_BEAN_MR2)
     @Test
-    public void pluginState_atLeastJellybeanMr2_shouldDefaultToOff_shouldNeverBeEnabled()  {
+    public void pluginState_shouldDefaultToOff_shouldNeverBeEnabled()  {
         assertThat(subject.getSettings().getPluginState()).isEqualTo(PluginState.OFF);
-
-        subject.enablePlugins(true);
-        assertThat(subject.getSettings().getPluginState()).isEqualTo(PluginState.OFF);
-    }
-
-    @Test
-    public void pluginState_BelowJellybeanMr2_shouldDefaultToOn_shouldAllowToggling() {
-        TestSdkHelper.setReportedSdkLevel(VERSION_CODES.JELLY_BEAN);
-        subject = new BaseHtmlWebView(testActivity, mockAdReport);
-        assertThat(subject.getSettings().getPluginState()).isEqualTo(PluginState.ON);
-
-        subject.enablePlugins(false);
-        assertThat(subject.getSettings().getPluginState()).isEqualTo(PluginState.OFF);
-
-        subject.enablePlugins(true);
-        assertThat(subject.getSettings().getPluginState()).isEqualTo(PluginState.ON);
     }
 
     @Test

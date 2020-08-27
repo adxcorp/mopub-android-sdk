@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -25,7 +25,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import com.mopub.common.AdReport;
 import com.mopub.common.CloseableLayout.ClosePosition;
 import com.mopub.common.Constants;
 import com.mopub.common.Preconditions;
@@ -52,8 +51,6 @@ import static com.mopub.mobileads.MoPubErrorCode.RENDER_PROCESS_GONE_WITH_CRASH;
 import static com.mopub.network.MoPubRequestUtils.getQueryParamMap;
 
 public class MraidBridge {
-    private final AdReport mAdReport;
-
     public interface MraidBridgeListener {
         void onPageLoaded();
 
@@ -99,16 +96,19 @@ public class MraidBridge {
 
     private boolean mHasLoaded;
 
-    MraidBridge(@Nullable AdReport adReport, @NonNull PlacementType placementType) {
-        this(adReport, placementType, new MraidNativeCommandHandler());
+    private boolean mAllowCustomClose;
+
+    MraidBridge(@NonNull final PlacementType placementType, final boolean allowCustomClose) {
+        this(placementType, new MraidNativeCommandHandler(), allowCustomClose);
     }
 
     @VisibleForTesting
-    MraidBridge(@Nullable AdReport adReport, @NonNull PlacementType placementType,
-            @NonNull MraidNativeCommandHandler mraidNativeCommandHandler) {
-        mAdReport = adReport;
+    MraidBridge(@NonNull final PlacementType placementType,
+                @NonNull final MraidNativeCommandHandler mraidNativeCommandHandler,
+                final boolean allowCustomClose) {
         mPlacementType = placementType;
         mMraidNativeCommandHandler = mraidNativeCommandHandler;
+        mAllowCustomClose = allowCustomClose;
     }
 
     void setMraidBridgeListener(@Nullable MraidBridgeListener listener) {
@@ -119,10 +119,8 @@ public class MraidBridge {
         mMraidWebView = mraidWebView;
         mMraidWebView.getSettings().setJavaScriptEnabled(true);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            if (mPlacementType == PlacementType.INTERSTITIAL) {
-                mraidWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-            }
+        if (mPlacementType == PlacementType.INTERSTITIAL) {
+            mraidWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         }
 
         mMraidWebView.setScrollContainer(false);
@@ -156,8 +154,7 @@ public class MraidBridge {
             }
         });
 
-        mGestureDetector = new ViewGestureDetector(
-                mMraidWebView.getContext(), mMraidWebView, mAdReport);
+        mGestureDetector = new ViewGestureDetector(mMraidWebView.getContext());
 
         mMraidWebView.setOnTouchListener(new OnTouchListener() {
             @Override
@@ -456,16 +453,14 @@ public class MraidBridge {
                 boolean allowOffscreen = parseBoolean(params.get("allowOffscreen"), true);
                 mMraidBridgeListener.onResize(
                         width, height, offsetX, offsetY, closePosition, allowOffscreen);
+                mMraidBridgeListener.onUseCustomClose(mAllowCustomClose);
                 break;
             case EXPAND:
                 URI uri = parseURI(params.get("url"), null);
-                boolean shouldUseCustomClose = parseBoolean(params.get("shouldUseCustomClose"),
-                        false);
-                mMraidBridgeListener.onExpand(uri, shouldUseCustomClose);
+                mMraidBridgeListener.onExpand(uri, parseAllowCustomClose(params, mAllowCustomClose));
                 break;
             case USE_CUSTOM_CLOSE:
-                shouldUseCustomClose = parseBoolean(params.get("shouldUseCustomClose"), false);
-                mMraidBridgeListener.onUseCustomClose(shouldUseCustomClose);
+                mMraidBridgeListener.onUseCustomClose(parseAllowCustomClose(params, mAllowCustomClose));
                 break;
             case OPEN:
                 uri = parseURI(params.get("url"));
@@ -539,6 +534,13 @@ public class MraidBridge {
         }
     }
 
+    private static boolean parseAllowCustomClose(@NonNull final Map<String, String> params,
+                                                 final boolean allowCustomClose) throws MraidCommandException {
+        boolean useCustomClose = parseBoolean(params.get("shouldUseCustomClose"), false);
+        useCustomClose &= allowCustomClose;
+        return useCustomClose;
+    }
+
     private int checkRange(int value, int min, int max) throws MraidCommandException {
         if (value < min || value > max) {
             throw new MraidCommandException("Integer parameter out of range: " + value);
@@ -546,7 +548,7 @@ public class MraidBridge {
         return value;
     }
 
-    private boolean parseBoolean(
+    private static boolean parseBoolean(
             @Nullable String text, boolean defaultValue) throws MraidCommandException {
         if (text == null) {
             return defaultValue;
@@ -554,7 +556,7 @@ public class MraidBridge {
         return parseBoolean(text);
     }
 
-    private boolean parseBoolean(final String text) throws MraidCommandException {
+    private static boolean parseBoolean(final String text) throws MraidCommandException {
         if ("true".equals(text)) {
             return true;
         } else if ("false".equals(text)) {

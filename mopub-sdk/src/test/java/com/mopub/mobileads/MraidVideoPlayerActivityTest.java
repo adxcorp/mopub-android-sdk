@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -60,13 +60,6 @@ public class MraidVideoPlayerActivityTest {
         testBroadcastIdentifier = 1001;
         intent.putExtra(BROADCAST_IDENTIFIER_KEY, testBroadcastIdentifier);
         baseVideoViewController = mock(BaseVideoViewController.class);
-    }
-
-    @Test
-    public void onCreate_withVastExtraKey_shouldUseVastVideoViewController() throws Exception {
-        initializeSubjectForVast();
-
-        assertThat(subject.getBaseVideoViewController()).isInstanceOf(VastVideoViewController.class);
     }
 
     @Test

@@ -1,10 +1,12 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads.factories;
 
 import android.content.Context;
+
+import androidx.annotation.VisibleForTesting;
 
 import com.mopub.mobileads.VastManager;
 
@@ -23,7 +25,8 @@ public class VastManagerFactory {
         return new VastManager(context, preCacheVideo);
     }
 
-    @Deprecated // for testing
+    @Deprecated
+    @VisibleForTesting
     public static void setInstance(VastManagerFactory factory) {
         instance = factory;
     }

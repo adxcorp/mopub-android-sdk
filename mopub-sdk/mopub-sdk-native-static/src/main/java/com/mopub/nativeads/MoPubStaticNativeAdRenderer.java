@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -15,23 +15,19 @@ import androidx.annotation.Nullable;
 import com.mopub.common.Preconditions;
 import com.mopub.common.VisibleForTesting;
 
-import java.lang.ref.WeakReference;
 import java.util.WeakHashMap;
 
 import static android.view.View.VISIBLE;
 
 /**
- * An implementation of {@link MoPubAdRenderer} for rendering native ads.
+ * An implementation of {@link com.mopub.nativeads.MoPubAdRenderer} for rendering native ads.
  */
 public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNativeAd> {
-    @NonNull
-    private final ViewBinder mViewBinder;
+    @NonNull private final ViewBinder mViewBinder;
 
     // This is used instead of View.setTag, which causes a memory leak in 2.3
     // and earlier: https://code.google.com/p/android/issues/detail?id=18273
-    @VisibleForTesting
-    @NonNull
-    final WeakHashMap<View, WeakReference<StaticNativeViewHolder>> mViewHolderMap;
+    @VisibleForTesting @NonNull final WeakHashMap<View, StaticNativeViewHolder> mViewHolderMap;
 
     /**
      * Constructs a native ad renderer with a view binder.
@@ -40,7 +36,7 @@ public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNative
      */
     public MoPubStaticNativeAdRenderer(@NonNull final ViewBinder viewBinder) {
         mViewBinder = viewBinder;
-        mViewHolderMap = new WeakHashMap<View, WeakReference<StaticNativeViewHolder>>();
+        mViewHolderMap = new WeakHashMap<View, StaticNativeViewHolder>();
     }
 
     @Override
@@ -53,29 +49,18 @@ public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNative
 
     @Override
     public void renderAdView(@NonNull final View view,
-                             @NonNull final StaticNativeAd staticNativeAd) {
-        WeakReference<StaticNativeViewHolder> viewHolderWeakReference = mViewHolderMap.get(view);
-
-        StaticNativeViewHolder staticNativeViewHolder;
-        if(viewHolderWeakReference == null) {
-            staticNativeViewHolder = new StaticNativeViewHolder(view, mViewBinder);
-            mViewHolderMap.put(view, new WeakReference(staticNativeViewHolder));
-        } else {
-            if(viewHolderWeakReference.get() == null) {
-                staticNativeViewHolder = new StaticNativeViewHolder(view, mViewBinder);
-                mViewHolderMap.put(view, new WeakReference(staticNativeViewHolder));
-            } else {
-                staticNativeViewHolder = viewHolderWeakReference.get();
-            }
+            @NonNull final StaticNativeAd staticNativeAd) {
+        StaticNativeViewHolder staticNativeViewHolder = mViewHolderMap.get(view);
+        if (staticNativeViewHolder == null) {
+            staticNativeViewHolder = StaticNativeViewHolder.fromViewBinder(view, mViewBinder);
+            mViewHolderMap.put(view, staticNativeViewHolder);
         }
 
-        if(staticNativeViewHolder != null) {
-            update(staticNativeViewHolder, staticNativeAd);
-            NativeRendererHelper.updateExtras(staticNativeViewHolder.mainView,
-                    mViewBinder.extras,
-                    staticNativeAd.getExtras());
-            setViewVisibility(staticNativeViewHolder, VISIBLE);
-        }
+        update(staticNativeViewHolder, staticNativeAd);
+        NativeRendererHelper.updateExtras(staticNativeViewHolder.mainView,
+                mViewBinder.extras,
+                staticNativeAd.getExtras());
+        setViewVisibility(staticNativeViewHolder, VISIBLE);
     }
 
     @Override
@@ -99,6 +84,8 @@ public class MoPubStaticNativeAdRenderer implements MoPubAdRenderer<StaticNative
                 staticNativeViewHolder.privacyInformationIconImageView,
                 staticNativeAd.getPrivacyInformationIconImageUrl(),
                 staticNativeAd.getPrivacyInformationIconClickThroughUrl());
+        NativeRendererHelper.addSponsoredView(staticNativeAd.getSponsored(),
+                staticNativeViewHolder.sponsoredTextView);
     }
 
     private void setViewVisibility(@NonNull final StaticNativeViewHolder staticNativeViewHolder,

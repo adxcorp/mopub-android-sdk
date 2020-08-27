@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import android.view.View;
 import android.webkit.WebView;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,6 +23,7 @@ import java.util.Set;
  * true - successfully called through via reflection
  * false - error invoking via reflection or unexpected internal session state
  */
+@Deprecated
 public interface ExternalViewabilitySession {
     @NonNull String getName();
 

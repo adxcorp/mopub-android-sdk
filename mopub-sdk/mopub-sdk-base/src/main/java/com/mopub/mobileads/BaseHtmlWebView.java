@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -6,13 +6,13 @@ package com.mopub.mobileads;
 
 import android.content.Context;
 import android.graphics.Color;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 
-import com.mopub.common.AdReport;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.mopub.common.Constants;
 import com.mopub.common.logging.MoPubLog;
 import com.mopub.network.Networking;
@@ -20,18 +20,29 @@ import com.mopub.network.Networking;
 import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM;
 
 public class BaseHtmlWebView extends BaseWebView {
+
+    public interface BaseWebViewListener {
+        void onLoaded(View view);
+        void onFailedToLoad(@NonNull final MoPubErrorCode errorCode);
+        void onRenderProcessGone(@NonNull final MoPubErrorCode errorCode);
+        void onFailed();
+        void onClicked();
+        void onExpand();
+        void onResize(final boolean toOriginalSize);
+        void onClose();
+    }
+
     @NonNull
     private final ViewGestureDetector mViewGestureDetector;
 
-    public BaseHtmlWebView(Context context, AdReport adReport) {
+    public BaseHtmlWebView(Context context) {
         super(context);
 
         disableScrollingAndZoom();
         getSettings().setJavaScriptEnabled(true);
 
-        mViewGestureDetector = new ViewGestureDetector(context, this, adReport);
+        mViewGestureDetector = new ViewGestureDetector(context);
 
-        enablePlugins(true);
         setBackgroundColor(Color.TRANSPARENT);
     }
 

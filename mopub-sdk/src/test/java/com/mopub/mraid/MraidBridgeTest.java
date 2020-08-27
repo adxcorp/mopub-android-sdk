@@ -1,24 +1,20 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mraid;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.Context;
-import android.os.Build;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
 
-import com.mopub.common.AdReport;
+import com.mopub.common.CloseableLayout;
 import com.mopub.common.Constants;
 import com.mopub.common.test.support.SdkTestRunner;
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mraid.MraidBridge.MraidBridgeListener;
 import com.mopub.mraid.MraidBridge.MraidWebView;
-import com.mopub.mraid.MraidNativeCommandHandler.MraidCommandFailureListener;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +24,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.robolectric.Robolectric;
-import org.robolectric.annotation.Config;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,7 +33,7 @@ import java.util.Map;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
@@ -55,8 +50,6 @@ public class MraidBridgeTest {
     private MraidNativeCommandHandler mockNativeCommandHandler;
     @Mock
     private MraidBridgeListener mockBridgeListener;
-    @Mock
-    private AdReport mockAdReport;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private MraidWebView mockBannerWebView;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -76,17 +69,15 @@ public class MraidBridgeTest {
     public void setUp() {
         activity = Robolectric.buildActivity(Activity.class).create().get();
 
-        subjectBanner = new MraidBridge(mockAdReport, PlacementType.INLINE, mockNativeCommandHandler);
+        subjectBanner = new MraidBridge(PlacementType.INLINE, mockNativeCommandHandler, false);
         subjectBanner.setMraidBridgeListener(mockBridgeListener);
 
-        subjectInterstitial = new MraidBridge(mockAdReport, PlacementType.INTERSTITIAL, mockNativeCommandHandler);
+        subjectInterstitial = new MraidBridge(PlacementType.INTERSTITIAL, mockNativeCommandHandler, false);
         subjectInterstitial.setMraidBridgeListener(mockBridgeListener);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    @Config(sdk = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
-    public void attachView_atLeastJellyBeanMr1_withInterstitial_shouldAutoPlayVideo() {
+    public void attachView_withInterstitial_shouldAutoPlayVideo() {
         when(mockInterstitialWebView.getSettings()).thenReturn(mockWebSettings);
 
         subjectInterstitial.attachView(mockInterstitialWebView);
@@ -94,40 +85,16 @@ public class MraidBridgeTest {
         verify(mockWebSettings).setMediaPlaybackRequiresUserGesture(false);
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-    @Config(sdk = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
-    public void attachView_atLeastJellyBeanMr1_withInline_shouldNotAutoPlayVideo() {
+    public void attachView_withInline_shouldNotAutoPlayVideo() {
         when(mockBannerWebView.getSettings()).thenReturn(mockWebSettings);
 
         subjectBanner.attachView(mockBannerWebView);
 
         verify(mockWebSettings, never()).setMediaPlaybackRequiresUserGesture(anyBoolean());
-    }
-
-    @Config(sdk = Build.VERSION_CODES.JELLY_BEAN)
-    @Test
-    public void attachView_belowJellyBeanMr1_withInterstitial_shouldNotAutoPlayVideo() {
-        when(mockInterstitialWebView.getSettings()).thenReturn(mockWebSettings);
-
-        subjectInterstitial.attachView(mockInterstitialWebView);
-
         // Disregard setting of javascript
         verify(mockWebSettings).setJavaScriptEnabled(anyBoolean());
-        // Ensure mockWebSettings.setMediaPlaybackRequiresUserGesture is never called
-        verifyNoMoreInteractions(mockWebSettings);
-    }
-
-    @Config(sdk = Build.VERSION_CODES.JELLY_BEAN)
-    @Test
-    public void attachView_belowJellyBeanMr1_withInline_shouldNotAutoPlayVideo() {
-        when(mockBannerWebView.getSettings()).thenReturn(mockWebSettings);
-
-        subjectBanner.attachView(mockBannerWebView);
-
-        // Disregard setting of javascript
-        verify(mockWebSettings).setJavaScriptEnabled(anyBoolean());
-        // Ensure mockWebSettings.setMediaPlaybackRequiresUserGesture is never called
+        // Ensure mockWebSettings.setMediaPlaybackRequiresUserGesture or anything else is never called
         verifyNoMoreInteractions(mockWebSettings);
     }
 
@@ -293,7 +260,7 @@ public class MraidBridgeTest {
     public void runCommand_requiresClick_notClicked_shouldThrowException()
             throws MraidCommandException {
         attachWebViews();
-        subjectBanner = new MraidBridge(mockAdReport, PlacementType.INLINE);
+        subjectBanner = new MraidBridge(PlacementType.INLINE, false);
         subjectBanner.attachView(mockBannerWebView);
         subjectBanner.setClicked(false);
         Map<String, String> params = new HashMap<>();
@@ -347,8 +314,97 @@ public class MraidBridgeTest {
     }
 
     @Test
-    public void runCommand_expand_shouldCallListener()
+    public void runCommand_useCustomClose_withShouldUseCustomCloseTrue_shouldPassTrue()
             throws MraidCommandException {
+        subjectBanner = new MraidBridge(PlacementType.INLINE, mockNativeCommandHandler, true);
+        subjectBanner.setMraidBridgeListener(mockBridgeListener);
+        subjectInterstitial = new MraidBridge(PlacementType.INTERSTITIAL, mockNativeCommandHandler, true);
+        subjectInterstitial.setMraidBridgeListener(mockBridgeListener);
+        attachWebViews();
+        subjectBanner.setClicked(true);
+        Map<String, String> params = new HashMap<>();
+        params.put("shouldUseCustomClose", "true");
+
+        subjectBanner.runCommand(MraidJavascriptCommand.USE_CUSTOM_CLOSE, params);
+
+        verify(mockBridgeListener).onUseCustomClose( true);
+    }
+
+    @Test
+    public void runCommand_useCustomClose_withShouldUseCustomCloseFalse_shouldPassFalse()
+            throws MraidCommandException {
+        subjectBanner = new MraidBridge(PlacementType.INLINE, mockNativeCommandHandler, true);
+        subjectBanner.setMraidBridgeListener(mockBridgeListener);
+        subjectInterstitial = new MraidBridge(PlacementType.INTERSTITIAL, mockNativeCommandHandler, true);
+        subjectInterstitial.setMraidBridgeListener(mockBridgeListener);
+        attachWebViews();
+        subjectBanner.setClicked(true);
+        Map<String, String> params = new HashMap<>();
+        params.put("shouldUseCustomClose", "false");
+
+        subjectBanner.runCommand(MraidJavascriptCommand.USE_CUSTOM_CLOSE, params);
+
+        verify(mockBridgeListener).onUseCustomClose( false);
+    }
+
+    @Test
+    public void runCommand_useCustomClose_withShouldUseCustomCloseTrue_withAllowCustomCloseFalse_shouldPassFalse()
+            throws MraidCommandException {
+        attachWebViews();
+        subjectBanner.setClicked(true);
+        Map<String, String> params = new HashMap<>();
+        params.put("shouldUseCustomClose", "true");
+
+        subjectBanner.runCommand(MraidJavascriptCommand.USE_CUSTOM_CLOSE, params);
+
+        verify(mockBridgeListener).onUseCustomClose( false);
+    }
+
+    @Test
+    public void runCommand_resize_withAllowCustomClose_shouldCallListener()
+            throws MraidCommandException {
+        subjectBanner = new MraidBridge(PlacementType.INLINE, mockNativeCommandHandler, true);
+        subjectBanner.setMraidBridgeListener(mockBridgeListener);
+        subjectInterstitial = new MraidBridge(PlacementType.INTERSTITIAL, mockNativeCommandHandler, true);
+        subjectInterstitial.setMraidBridgeListener(mockBridgeListener);
+        attachWebViews();
+        subjectBanner.setClicked(true);
+        Map<String, String> params = new HashMap<>();
+        params.put("width", "50");
+        params.put("height", "60");
+        params.put("offsetX", "70");
+        params.put("offsetY", "80");
+
+        subjectBanner.runCommand(MraidJavascriptCommand.RESIZE, params);
+
+        verify(mockBridgeListener).onResize(anyInt(), anyInt(), anyInt(), anyInt(), any(CloseableLayout.ClosePosition.class), anyBoolean());
+        verify(mockBridgeListener).onUseCustomClose(true);
+    }
+
+    @Test
+    public void runCommand_resize_withoutAllowCustomClose_shouldCallListener()
+            throws MraidCommandException {
+        attachWebViews();
+        subjectBanner.setClicked(true);
+        Map<String, String> params = new HashMap<>();
+        params.put("width", "50");
+        params.put("height", "60");
+        params.put("offsetX", "70");
+        params.put("offsetY", "80");
+
+        subjectBanner.runCommand(MraidJavascriptCommand.RESIZE, params);
+
+        verify(mockBridgeListener).onResize(anyInt(), anyInt(), anyInt(), anyInt(), any(CloseableLayout.ClosePosition.class), anyBoolean());
+        verify(mockBridgeListener).onUseCustomClose(false);
+    }
+
+    @Test
+    public void runCommand_expand_withAllowCustomClose_shouldCallListener()
+            throws MraidCommandException {
+        subjectBanner = new MraidBridge(PlacementType.INLINE, mockNativeCommandHandler, true);
+        subjectBanner.setMraidBridgeListener(mockBridgeListener);
+        subjectInterstitial = new MraidBridge(PlacementType.INTERSTITIAL, mockNativeCommandHandler, true);
+        subjectInterstitial.setMraidBridgeListener(mockBridgeListener);
         attachWebViews();
         subjectBanner.setClicked(true);
         Map<String, String> params = new HashMap<>();
@@ -360,8 +416,25 @@ public class MraidBridgeTest {
     }
 
     @Test
-    public void runCommand_expand_withUrl_shouldCallListener()
+    public void runCommand_expand_withoutAllowCustomClose_shouldCallListener()
             throws MraidCommandException {
+        attachWebViews();
+        subjectBanner.setClicked(true);
+        Map<String, String> params = new HashMap<>();
+        params.put("shouldUseCustomClose", "true");
+
+        subjectBanner.runCommand(MraidJavascriptCommand.EXPAND, params);
+
+        verify(mockBridgeListener).onExpand(null, false);
+    }
+
+    @Test
+    public void runCommand_expand_withUrl_withAllowCustomClose_shouldCallListener()
+            throws MraidCommandException {
+        subjectBanner = new MraidBridge(PlacementType.INLINE, mockNativeCommandHandler, true);
+        subjectBanner.setMraidBridgeListener(mockBridgeListener);
+        subjectInterstitial = new MraidBridge(PlacementType.INTERSTITIAL, mockNativeCommandHandler, true);
+        subjectInterstitial.setMraidBridgeListener(mockBridgeListener);
         attachWebViews();
         subjectBanner.setClicked(true);
         Map<String, String> params = new HashMap<>();
@@ -373,6 +446,23 @@ public class MraidBridgeTest {
         ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
         verify(mockBridgeListener).onExpand(
                 uriCaptor.capture(), eq(true));
+        assertThat(uriCaptor.getValue().toString()).isEqualTo("https://valid-url");
+    }
+
+    @Test
+    public void runCommand_expand_withUrl_withoutAllowCustomClose_shouldCallListener()
+            throws MraidCommandException {
+        attachWebViews();
+        subjectBanner.setClicked(true);
+        Map<String, String> params = new HashMap<>();
+        params.put("url", "https://valid-url");
+        params.put("shouldUseCustomClose", "true");
+
+        subjectBanner.runCommand(MraidJavascriptCommand.EXPAND, params);
+
+        ArgumentCaptor<URI> uriCaptor = ArgumentCaptor.forClass(URI.class);
+        verify(mockBridgeListener).onExpand(
+                uriCaptor.capture(), eq(false));
         assertThat(uriCaptor.getValue().toString()).isEqualTo("https://valid-url");
     }
 

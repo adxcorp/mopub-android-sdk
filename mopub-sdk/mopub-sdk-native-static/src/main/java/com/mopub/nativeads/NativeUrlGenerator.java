@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -35,7 +35,6 @@ class NativeUrlGenerator extends AdUrlGenerator {
             final boolean canCollectPersonalInformation = MoPub.canCollectPersonalInformation();
 
             mUserDataKeywords = canCollectPersonalInformation ? requestParameters.getUserDataKeywords() : null;
-            mLocation = canCollectPersonalInformation ? requestParameters.getLocation() : null;
 
             mKeywords = requestParameters.getKeywords();
             mDesiredAssets = requestParameters.getDesiredAssets();

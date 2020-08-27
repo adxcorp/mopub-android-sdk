@@ -1,4 +1,4 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
@@ -24,6 +24,7 @@ import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM;
 public class ImpressionData implements Serializable {
     private static final long serialVersionUID = BuildConfig.VERSION_CODE;
 
+    public static final String APP_VERSION = "app_version";
     public static final String ADUNIT_ID = "adunit_id";
     public static final String ADUNIT_NAME = "adunit_name";
     public static final String ADUNIT_FORMAT = "adunit_format";
@@ -59,6 +60,11 @@ public class ImpressionData implements Serializable {
         }
 
         return null;
+    }
+
+    @Nullable
+    public String getAppVersion() {
+        return mJson.optString(APP_VERSION, null);
     }
 
     @Nullable

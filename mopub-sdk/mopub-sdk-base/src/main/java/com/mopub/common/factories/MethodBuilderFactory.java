@@ -1,15 +1,18 @@
-// Copyright 2018-2019 Twitter, Inc.
+// Copyright 2018-2020 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
 // http://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.common.factories;
+
+import androidx.annotation.VisibleForTesting;
 
 import static com.mopub.common.util.Reflection.MethodBuilder;
 
 public class MethodBuilderFactory {
     protected static MethodBuilderFactory instance = new MethodBuilderFactory();
 
-    @Deprecated // for testing
+    @Deprecated
+    @VisibleForTesting
     public static void setInstance(MethodBuilderFactory factory) {
         instance = factory;
     }
