@@ -80,7 +80,7 @@ public class Networking {
                     final Network network = new BasicNetwork(httpStack);
                     final File volleyCacheDir = new File(context.getCacheDir().getPath() +
                             File.separator + CACHE_DIRECTORY_NAME);
-                    final Cache cache = new DiskBasedCache(volleyCacheDir,
+                    final Cache cache = new MoPubDiskBasedCache(volleyCacheDir,
                             (int) DeviceUtils.diskCacheSizeBytes(volleyCacheDir, Constants.TEN_MB));
                     requestQueue = new MoPubRequestQueue(cache, network);
                     sRequestQueue = requestQueue;
