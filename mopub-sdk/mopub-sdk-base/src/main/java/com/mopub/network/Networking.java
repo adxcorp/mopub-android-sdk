@@ -25,9 +25,9 @@ import com.mopub.volley.Network;
 import com.mopub.volley.RequestQueue;
 import com.mopub.volley.toolbox.BaseHttpStack;
 import com.mopub.volley.toolbox.BasicNetwork;
-import com.mopub.volley.toolbox.DiskBasedCache;
 import com.mopub.volley.toolbox.HurlStack;
 import com.mopub.volley.toolbox.ImageLoader;
+import com.mopub.volley.toolbox.MoPubDiskBasedCache;
 
 import java.io.File;
 
@@ -94,7 +94,7 @@ public class Networking {
                     final Network network = new BasicNetwork(httpStack);
                     final File volleyCacheDir = new File(context.getCacheDir().getPath() +
                             File.separator + CACHE_DIRECTORY_NAME);
-                    final Cache cache = new DiskBasedCache(volleyCacheDir,
+                    final Cache cache = new MoPubDiskBasedCache(volleyCacheDir,
                             (int) DeviceUtils.diskCacheSizeBytes(volleyCacheDir, Constants.TEN_MB));
                     requestQueue = new MoPubRequestQueue(cache, network);
                     sRequestQueue = requestQueue;
