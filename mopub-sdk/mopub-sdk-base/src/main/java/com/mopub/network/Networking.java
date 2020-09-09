@@ -6,12 +6,10 @@ package com.mopub.network;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.LruCache;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import com.mopub.common.Constants;
@@ -23,9 +21,9 @@ import com.mopub.volley.Network;
 import com.mopub.volley.RequestQueue;
 import com.mopub.volley.toolbox.BaseHttpStack;
 import com.mopub.volley.toolbox.BasicNetwork;
-import com.mopub.volley.toolbox.DiskBasedCache;
 import com.mopub.volley.toolbox.HurlStack;
 import com.mopub.volley.toolbox.ImageLoader;
+import com.mopub.volley.toolbox.MoPubDiskBasedCache;
 
 import java.io.File;
 

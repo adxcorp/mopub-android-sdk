@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import com.mopub.volley.Cache;
 import com.mopub.volley.Header;
 import com.mopub.volley.VolleyLog;
-import com.mopub.volley.toolbox.HttpHeaderParser;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -633,4 +632,3 @@ public class MoPubDiskBasedCache implements Cache {
         return result;
     }
 }
-    No newline at end of file
