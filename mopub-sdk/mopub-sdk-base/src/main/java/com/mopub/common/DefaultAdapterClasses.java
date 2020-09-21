@@ -22,8 +22,7 @@ public enum DefaultAdapterClasses {
     TAPJOY_ADAPTER_CONFIGURATION("com.mopub.mobileads.TapjoyAdapterConfiguration"),
     UNITY_ADS_ADAPTER_CONFIGURATION("com.mopub.mobileads.UnityAdsAdapterConfiguration"),
     VERIZON_ADAPTER_CONFIGURATION("com.mopub.mobileads.VerizonAdapterConfiguration"),
-    VUNGLE_ADAPTER_CONFIGURATION("com.mopub.mobileads.VungleAdapterConfiguration"),
-    MINTEGRAL_ADAPTER_CONFIGURATION("com.mopub.mobileads.MintegralAdapterConfiguration");
+    VUNGLE_ADAPTER_CONFIGURATION("com.mopub.mobileads.VungleAdapterConfiguration");
 ;
     private final String mClassName;
 
