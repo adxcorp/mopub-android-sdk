@@ -20,6 +20,8 @@ import com.mopub.nativeads.MediaViewBinder;
 import com.mopub.nativeads.MoPubAdAdapter;
 import com.mopub.nativeads.MoPubStaticNativeAdRenderer;
 import com.mopub.nativeads.MoPubVideoNativeAdRenderer;
+import com.mopub.nativeads.PangleAdRenderer;
+import com.mopub.nativeads.PangleAdViewBinder;
 import com.mopub.nativeads.RequestParameters;
 import com.mopub.nativeads.VerizonNativeAdRenderer;
 import com.mopub.nativeads.ViewBinder;
@@ -125,9 +127,20 @@ public class NativeListViewFragment extends Fragment {
                         .privacyInformationIconImageId(R.id.native_privacy_information_icon_image)
                         .build());
 
+        // Set up a renderer for Pangle ads.
+        final PangleAdRenderer pangleAdRenderer = new PangleAdRenderer(
+                new PangleAdViewBinder.Builder(R.layout.native_ad_pangle_list_item)
+                        .callToActionId(R.id.native_cta)
+                        .decriptionTextId(R.id.native_text)
+                        .iconImageId(R.id.native_icon_image)
+                        .titleId(R.id.native_title)
+                        .mediaViewIdId(R.id.native_main_image)
+                        .build());
+
         // Register the renderers with the MoPubAdAdapter and then set the adapter on the ListView.
         // The first renderer that can handle a particular native ad gets used.
         // We are prioritizing network renderers.
+        mAdAdapter.registerAdRenderer(pangleAdRenderer);
         mAdAdapter.registerAdRenderer(verizonNativeAdRenderer);
         mAdAdapter.registerAdRenderer(googlePlayServicesAdRenderer);
         mAdAdapter.registerAdRenderer(facebookAdRenderer);
