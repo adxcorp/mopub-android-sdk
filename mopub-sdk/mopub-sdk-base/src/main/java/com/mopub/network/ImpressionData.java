@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.network;
 
@@ -8,7 +8,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.mopub.common.logging.MoPubLog;
-import com.mopub.mobileads.base.BuildConfig;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,7 +21,7 @@ import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM;
 
 @SuppressWarnings({"WeakerAccess"})
 public class ImpressionData implements Serializable {
-    private static final long serialVersionUID = BuildConfig.VERSION_CODE;
+    private static final long serialVersionUID = 5637646059670153782L;
 
     public static final String APP_VERSION = "app_version";
     public static final String ADUNIT_ID = "adunit_id";
@@ -39,6 +38,7 @@ public class ImpressionData implements Serializable {
     public static final String PRECISION = "precision";
     public static final String NETWORK_NAME = "network_name";
     public static final String NETWORK_PLACEMENT_ID = "network_placement_id";
+    public static final String DEMAND_PARTNER_DATA = "demand_partner_data";
 
     @NonNull
     private SerializableJson mJson;
@@ -143,6 +143,11 @@ public class ImpressionData implements Serializable {
     @Nullable
     public String getNetworkPlacementId() {
         return mJson.optString(NETWORK_PLACEMENT_ID, null);
+    }
+
+    @Nullable
+    public JSONObject getDemandPartnerData() {
+        return mJson.optJSONObject(DEMAND_PARTNER_DATA);
     }
 
     /**

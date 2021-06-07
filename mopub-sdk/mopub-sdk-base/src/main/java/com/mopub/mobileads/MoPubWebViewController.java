@@ -1,12 +1,13 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
+import android.util.Patterns;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -90,8 +91,11 @@ public abstract class MoPubWebViewController {
             listener.onReady(mWebView);
         }
 
-        String htmlDataOm = ViewabilityManager.injectVerificationUrlsIntoHtml(htmlData, viewabilityVendors);
-        htmlDataOm = ViewabilityManager.injectScriptContentIntoHtml(htmlDataOm);
+        String htmlDataOm = htmlData;
+        if (!Patterns.WEB_URL.matcher(htmlData).matches()) {
+            htmlDataOm = ViewabilityManager.injectVerificationUrlsIntoHtml(htmlData, viewabilityVendors);
+            htmlDataOm = ViewabilityManager.injectScriptContentIntoHtml(htmlDataOm);
+        }
 
         doFillContent(htmlDataOm);
     }

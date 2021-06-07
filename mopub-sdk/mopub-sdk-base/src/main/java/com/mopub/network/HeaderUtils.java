@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.network;
 
@@ -26,7 +26,7 @@ public class HeaderUtils {
 
     @NonNull
     public static String extractHeader(@Nullable final JSONObject headers,
-            @NonNull final ResponseHeader responseHeader) {
+                                       @NonNull final ResponseHeader responseHeader) {
         Preconditions.checkNotNull(responseHeader);
 
         if (headers == null) {
@@ -50,7 +50,7 @@ public class HeaderUtils {
 
     @Nullable
     public static JSONArray extractJsonArrayHeader(@Nullable final JSONObject headers,
-                                                     @NonNull final ResponseHeader responseHeader) {
+                                                   @NonNull final ResponseHeader responseHeader) {
         Preconditions.checkNotNull(responseHeader);
 
         if (headers == null) {
@@ -80,8 +80,8 @@ public class HeaderUtils {
     }
 
     @NonNull
-    static List<String> extractStringArray(@NonNull final JSONObject headers,
-            @NonNull final ResponseHeader responseHeader) {
+    public static List<String> extractStringArray(@NonNull final JSONObject headers,
+                                                  @NonNull final ResponseHeader responseHeader) {
         Preconditions.checkNotNull(headers);
         Preconditions.checkNotNull(responseHeader);
 
@@ -103,8 +103,8 @@ public class HeaderUtils {
     }
 
     @Nullable
-    static String extractPercentHeaderString(JSONObject headers,
-            ResponseHeader responseHeader) {
+    public static String extractPercentHeaderString(JSONObject headers,
+                                                    ResponseHeader responseHeader) {
         Integer percentHeaderValue = extractPercentHeader(headers, responseHeader);
         return percentHeaderValue != null ? percentHeaderValue.toString() : null;
     }

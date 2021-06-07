@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads;
 
@@ -152,7 +152,7 @@ public class WebViewAdUrlGeneratorTest {
         when(spyApplicationContext.getPackageName()).thenReturn("testBundle");
         PackageManager mockPackageManager = mock(PackageManager.class);
         PackageInfo mockPackageInfo = mock(PackageInfo.class);
-        mockPackageInfo.versionName = BuildConfig.VERSION_NAME;
+        mockPackageInfo.versionName = MoPub.SDK_VERSION;
         when(mockPackageManager.getPackageInfo(any(String.class), anyInt())).thenReturn(mockPackageInfo);
         when(spyApplicationContext.getPackageManager()).thenReturn(mockPackageManager);
         when(spyApplicationContext.getSystemService(Context.WINDOW_SERVICE)).thenReturn(mockWindowManager);
@@ -222,7 +222,7 @@ public class WebViewAdUrlGeneratorTest {
         String url = subject.generateUrlString("server.com");
 
         assertThat(getParameterFromRequestUrl(url, "vv")).isEqualTo("4");
-        assertThat(getParameterFromRequestUrl(url, "vver")).isEqualTo("1.3.4-Mopub");
+        assertThat(getParameterFromRequestUrl(url, "vver")).isEqualTo("1.3.16-Mopub");
     }
 
     @Test
@@ -232,7 +232,7 @@ public class WebViewAdUrlGeneratorTest {
         String url = subject.generateUrlString("server.com");
 
         assertThat(getParameterFromRequestUrl(url, "vv")).isEqualTo("0");
-        assertThat(getParameterFromRequestUrl(url, "vver")).isEqualTo("1.3.4-Mopub");
+        assertThat(getParameterFromRequestUrl(url, "vver")).isEqualTo("1.3.16-Mopub");
     }
 
 
@@ -601,7 +601,7 @@ public class WebViewAdUrlGeneratorTest {
     }
 
     @Test
-    public void generateAdUrl_shouldSetNetworkType() throws Exception {
+    public void generateAdUrl_shouldSetNetworkType() {
         AdUrlBuilder urlBuilder = new AdUrlBuilder(expectedUdid).withCurrentConsentStatus(ConsentStatus.UNKNOWN.getValue());
         String adUrl;
 
@@ -645,6 +645,11 @@ public class WebViewAdUrlGeneratorTest {
                 createNetworkInfo(TYPE_MOBILE, TelephonyManager.NETWORK_TYPE_LTE));
         adUrl = generateMinimumUrlString();
         assertThat(adUrl).isEqualTo(urlBuilder.withNetworkType(MoPubNetworkType.GGGG).build());
+
+        shadowConnectivityManager.setActiveNetworkInfo(
+                createNetworkInfo(TYPE_MOBILE, TelephonyManager.NETWORK_TYPE_NR));
+        adUrl = generateMinimumUrlString();
+        assertThat(adUrl).isEqualTo(urlBuilder.withNetworkType(MoPubNetworkType.GGGGG).build());
     }
 
     @Test
@@ -861,7 +866,7 @@ public class WebViewAdUrlGeneratorTest {
                     paramIfNotEmpty("iso", countryIso) +
                     paramIfNotEmpty("cn", carrierName) +
                     "&ct=" + networkType +
-                    "&av=" + Uri.encode(BuildConfig.VERSION_NAME) +
+                    "&av=" + Uri.encode(MoPub.SDK_VERSION) +
                     (TextUtils.isEmpty(abt) ? "" : "&abt=" + Uri.encode(abt)) +
                     "&ifa=" + PlayServicesUrlRewriter.IFA_TEMPLATE +
                     "&dnt=" + PlayServicesUrlRewriter.DO_NOT_TRACK_TEMPLATE +
@@ -875,7 +880,7 @@ public class WebViewAdUrlGeneratorTest {
                     paramIfNotEmpty("backoff_ms", backoffMs) +
                     paramIfNotEmpty("backoff_reason", backoffReason) +
                     "&vv=4" +
-                    "&vver=1.3.4-Mopub" +
+                    "&vver=1.3.16-Mopub" +
                     "&mr=1";
         }
 

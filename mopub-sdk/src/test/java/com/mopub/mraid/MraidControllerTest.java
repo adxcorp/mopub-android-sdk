@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mraid;
 
@@ -22,10 +22,8 @@ import com.mopub.common.ViewabilityManager;
 import com.mopub.common.test.support.SdkTestRunner;
 import com.mopub.common.util.Utils;
 import com.mopub.mobileads.BaseHtmlWebView;
-import com.mopub.mobileads.BaseVideoPlayerActivityTest;
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubWebViewController;
-import com.mopub.mobileads.MraidVideoPlayerActivity;
 import com.mopub.mobileads.WebViewCacheService;
 import com.mopub.mraid.MraidBridge.MraidBridgeListener;
 import com.mopub.mraid.MraidBridge.MraidWebView;
@@ -458,13 +456,6 @@ public class MraidControllerTest {
     }
 
     @Test
-    public void handleShowVideo_shouldStartVideoPlayerActivity() {
-        subject.handleShowVideo("https://video");
-        BaseVideoPlayerActivityTest.assertMraidVideoPlayerActivityStarted(
-                MraidVideoPlayerActivity.class, "https://video");
-    }
-
-    @Test
     public void handleCustomClose_shouldUpdateExpandedContainer() {
         subject.handleCustomClose(true);
         assertThat(subject.getExpandedAdContainer().isCloseVisible()).isFalse();
@@ -592,6 +583,24 @@ public class MraidControllerTest {
 
         final String htmlContent = ViewabilityManager.injectScriptContentIntoHtml("<HTML/>");
         verify(mockBridge).setContentHtml(htmlContent);
+        verify(mockWebViewListener, never()).onLoaded(any(View.class));
+    }
+
+    @Test
+    public void fillContent_withUrl_shouldLoadUrl() {
+        subject = new MraidController(
+                activity, "", PlacementType.INTERSTITIAL,
+                mockBridge, mockTwoPartBridge, mockScreenMetricsWaiter);
+        subject.setMoPubWebViewListener(mockWebViewListener);
+        reset(mockWebViewListener, mockBridge);
+        subject.setOrientationBroadcastReceiver(mockOrientationBroadcastReceiver);
+        subject.setRootView(rootView);
+        ViewabilityManager.setViewabilityEnabled(true);
+
+        subject.fillContent("https://www.thisshouldlooklikea.url", null, null);
+
+        verify(mockBridge, never()).setContentHtml(any());
+        verify(mockBridge).setContentUrl("https://www.thisshouldlooklikea.url");
         verify(mockWebViewListener, never()).onLoaded(any(View.class));
     }
 

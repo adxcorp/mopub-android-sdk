@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.common;
 
@@ -8,7 +8,6 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.mopub.common.MoPub.BrowserAgent;
 import com.mopub.common.test.support.SdkTestRunner;
 
 import org.junit.After;
@@ -16,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static com.mopub.common.BrowserAgentManager.BrowserAgent.NATIVE;
 import static com.mopub.common.UrlAction.FOLLOW_DEEP_LINK;
 import static com.mopub.common.UrlAction.FOLLOW_DEEP_LINK_WITH_FALLBACK;
 import static com.mopub.common.UrlAction.HANDLE_MOPUB_SCHEME;
@@ -32,12 +32,12 @@ public class UrlActionTest {
 
     @Before
     public void setUp() {
-        MoPub.resetBrowserAgent();
+        BrowserAgentManager.resetBrowserAgent();
     }
 
     @After
     public void tearDown() {
-        MoPub.resetBrowserAgent();
+        BrowserAgentManager.resetBrowserAgent();
     }
 
     @Test
@@ -79,7 +79,7 @@ public class UrlActionTest {
 
     @Test
     public void openNativeBrowser_withNativeBrowserAgent_shouldAlsoMatchHttpSchemes() throws Exception {
-        MoPub.setBrowserAgent(BrowserAgent.NATIVE);
+        BrowserAgentManager.setBrowserAgent(NATIVE);
         assertUrlActionMatching(OPEN_NATIVE_BROWSER, "mopubnativebrowser:", true);
         assertUrlActionMatching(OPEN_NATIVE_BROWSER, "MoPuBnAtIvEbRoWsEr:", true);
         assertUrlActionMatching(OPEN_NATIVE_BROWSER, "https:", true);
@@ -88,16 +88,16 @@ public class UrlActionTest {
 
     @Test
     public void openAppMarket_shouldBeCaseInsensitive() throws Exception {
-        assertUrlActionMatching(OPEN_APP_MARKET, "https://play.google.com", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "https://PlAy.GoOgLe.CoM", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "https://market.android.com", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "https://MaRkEt.AnDrOiD.CoM", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "market:", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "MaRkEt:", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "play.google.com/", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "PlAy.GoOgLe.CoM/", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "market.android.com/", true);
-        assertUrlActionMatching(OPEN_APP_MARKET, "MaRkEt.AnDrOiD.CoM/", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "https://play.google.com/store/apps/details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "https://PlAy.GoOgLe.CoM/store/apps/details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "https://market.android.com/store/apps/details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "https://MaRkEt.AnDrOiD.CoM/store/apps/details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "market://details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "MaRkEt://details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "play.google.com/store/apps/details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "PlAy.GoOgLe.CoM/store/apps/details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "market.android.com/store/apps/details?id=com.mopub.simpleadsdemo", true);
+        assertUrlActionMatching(OPEN_APP_MARKET, "MaRkEt.AnDrOiD.CoM/store/apps/details?id=com.mopub.simpleadsdemo", true);
     }
 
     @Test

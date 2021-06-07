@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.nativeads;
 
@@ -14,10 +14,9 @@ import android.widget.TextView;
 
 import com.mopub.common.test.support.SdkTestRunner;
 import com.mopub.nativeads.MoPubCustomEventNative.MoPubStaticNativeAd;
-import com.mopub.network.MaxWidthImageLoader;
+import com.mopub.network.MoPubImageLoader;
 import com.mopub.network.MoPubRequestQueue;
 import com.mopub.network.Networking;
-import com.mopub.volley.toolbox.ImageLoader;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,8 +52,8 @@ public class MoPubStaticNativeAdRendererTest {
     @Mock private TextView sponsoredView;
     @Mock private ImageView badView;
     @Mock private MoPubRequestQueue mockRequestQueue;
-    @Mock private MaxWidthImageLoader mockImageLoader;
-    @Mock private ImageLoader.ImageContainer mockImageContainer;
+    @Mock private MoPubImageLoader mockImageLoader;
+    @Mock private MoPubImageLoader.ImageContainer mockImageContainer;
     @Mock private Context context;
 
     @Before

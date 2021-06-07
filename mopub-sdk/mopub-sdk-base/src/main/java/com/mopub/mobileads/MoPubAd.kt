@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads
 
@@ -9,8 +9,6 @@ import android.location.Location
 import android.view.View
 import com.mopub.common.AdFormat
 import com.mopub.common.MoPub
-import com.mopub.common.logging.MoPubLog
-import com.mopub.common.logging.MoPubLog.AdLogEvent
 import com.mopub.mobileads.AdLifecycleListener.LoadListener
 import com.mopub.mobileads.AdLifecycleListener.InteractionListener
 import java.util.*

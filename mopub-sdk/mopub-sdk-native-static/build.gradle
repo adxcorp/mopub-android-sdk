@@ -1,10 +1,11 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 apply from: '../shared-build.gradle'
 
 dependencies {
+    implementation project(':mopub-sdk:mopub-sdk-networking')
     api project(':mopub-sdk:mopub-sdk-base')
     api 'androidx.recyclerview:recyclerview:1.0.0'
 }

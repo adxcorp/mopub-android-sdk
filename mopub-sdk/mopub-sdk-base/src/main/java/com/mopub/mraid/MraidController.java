@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mraid;
 
@@ -16,6 +16,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Patterns;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -45,7 +46,6 @@ import com.mopub.mobileads.BaseWebView;
 import com.mopub.mobileads.BaseWebViewViewability;
 import com.mopub.mobileads.MoPubErrorCode;
 import com.mopub.mobileads.MoPubWebViewController;
-import com.mopub.mobileads.MraidVideoPlayerActivity;
 import com.mopub.mobileads.util.WebViews;
 import com.mopub.mraid.MraidBridge.MraidBridgeListener;
 import com.mopub.mraid.MraidBridge.MraidWebView;
@@ -253,11 +253,6 @@ public class MraidController extends MoPubWebViewController {
         public void onOpen(@NonNull final URI uri) {
             handleOpen(uri.toString());
         }
-
-        @Override
-        public void onPlayVideo(@NonNull final URI uri) {
-            handleShowVideo(uri.toString());
-        }
     };
 
     @SuppressWarnings("FieldCanBeLocal")
@@ -325,11 +320,6 @@ public class MraidController extends MoPubWebViewController {
         @Override
         public void onOpen(final URI uri) {
             handleOpen(uri.toString());
-        }
-
-        @Override
-        public void onPlayVideo(@NonNull final URI uri) {
-            handleShowVideo(uri.toString());
         }
     };
 
@@ -826,11 +816,6 @@ public class MraidController extends MoPubWebViewController {
     }
 
     @VisibleForTesting
-    void handleShowVideo(@NonNull String videoUrl) {
-        MraidVideoPlayerActivity.startMraid(mContext, videoUrl);
-    }
-
-    @VisibleForTesting
     void lockOrientation(final int screenOrientation) throws MraidCommandException {
         final Activity activity = mWeakActivity.get();
         if (activity == null || !shouldAllowForceOrientation(mForceOrientation)) {
@@ -945,6 +930,10 @@ public class MraidController extends MoPubWebViewController {
         mDefaultAdContainer.addView(mWebView,
                 new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
+        if (Patterns.WEB_URL.matcher(htmlData).matches()) {
+            mMraidBridge.setContentUrl(htmlData);
+            return;
+        }
         mMraidBridge.setContentHtml(htmlData);
     }
 

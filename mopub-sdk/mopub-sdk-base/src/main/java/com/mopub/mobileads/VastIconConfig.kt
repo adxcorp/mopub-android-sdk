@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads
 
@@ -9,6 +9,7 @@ import android.os.Bundle
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import com.mopub.common.Constants
+import com.mopub.common.Mockable
 import com.mopub.common.MoPubBrowser
 import com.mopub.common.UrlAction
 import com.mopub.common.UrlHandler

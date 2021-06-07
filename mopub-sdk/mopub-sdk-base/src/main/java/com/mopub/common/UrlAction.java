@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.common;
 
@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.mopub.common.MoPub.BrowserAgent;
 import com.mopub.common.logging.MoPubLog;
 import com.mopub.common.util.Intents;
 import com.mopub.exceptions.IntentNotResolvableException;
@@ -20,9 +19,11 @@ import com.mopub.exceptions.UrlParseException;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import static com.mopub.common.BrowserAgentManager.BrowserAgent.NATIVE;
+import static com.mopub.common.BrowserAgentManager.getBrowserAgent;
 import static com.mopub.common.Constants.HTTPS;
-import static com.mopub.common.MoPub.getBrowserAgent;
 import static com.mopub.common.logging.MoPubLog.SdkLogEvent.CUSTOM;
+import static com.mopub.common.util.Intents.canLaunchApplicationUrl;
 import static com.mopub.network.TrackingRequest.makeTrackingHttpRequest;
 
 /**
@@ -112,7 +113,7 @@ public enum UrlAction {
             final String scheme = uri.getScheme();
 
             if (HTTPS.equalsIgnoreCase(scheme)) {
-                return getBrowserAgent() == BrowserAgent.NATIVE;
+                return getBrowserAgent() == NATIVE;
             }
 
             return "mopubnativebrowser".equalsIgnoreCase(scheme);
@@ -137,14 +138,24 @@ public enum UrlAction {
     /* 4 */ OPEN_APP_MARKET(true) {
         @Override
         public boolean shouldTryHandlingUrl(@NonNull final Uri uri) {
+            if (!uri.isHierarchical()) {
+                return false; // we only support hierarchical URIs for OPEN_APP_MARKET
+            }
+
             final String scheme = uri.getScheme();
             final String host = uri.getHost();
 
-            return "play.google.com".equalsIgnoreCase(host)
+            final boolean isCorrectScheme = "play.google.com".equalsIgnoreCase(host)
                     || "market.android.com".equalsIgnoreCase(host)
                     || "market".equalsIgnoreCase(scheme)
                     || uri.toString().toLowerCase().startsWith("play.google.com/")
                     || uri.toString().toLowerCase().startsWith("market.android.com/");
+
+            final String idParam = uri.getQueryParameter("id");
+
+            return isCorrectScheme
+                    && !TextUtils.isEmpty(idParam)
+                    && !"null".equals(idParam);
         }
 
         @Override
@@ -257,12 +268,10 @@ public enum UrlAction {
             }
 
             // 2. Attempt to handle the primary URL
-            try {
+            if(canLaunchApplicationUrl(context, primaryUri)) {
                 Intents.launchApplicationUrl(context, primaryUri);
                 makeTrackingHttpRequest(primaryTrackingUrls, context);
                 return;
-            } catch (IntentNotResolvableException e) {
-                // Primary URL failed; proceed to attempt fallback URL
             }
 
             // 3. Attempt to handle the fallback URL

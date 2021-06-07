@@ -1,6 +1,6 @@
-// Copyright 2018-2020 Twitter, Inc.
+// Copyright 2018-2021 Twitter, Inc.
 // Licensed under the MoPub SDK License Agreement
-// http://www.mopub.com/legal/sdk-license-agreement/
+// https://www.mopub.com/legal/sdk-license-agreement/
 
 package com.mopub.mobileads;
 
@@ -13,55 +13,55 @@ import com.mopub.common.Preconditions;
 import com.mopub.common.VisibleForTesting;
 import com.mopub.network.AdLoader;
 import com.mopub.network.AdResponse;
-import com.mopub.volley.Request;
-import com.mopub.volley.VolleyError;
+import com.mopub.network.MoPubNetworkError;
+import com.mopub.network.MoPubRequest;
 
 import java.util.HashMap;
 import java.util.Map;
 
 class RewardedAdsLoaders {
-    @NonNull private final HashMap<String, AdLoaderRewardedVideo> mAdUnitToAdLoader;
-    @NonNull private final MoPubRewardedVideoManager moPubRewardedVideoManager;
+    @NonNull private final HashMap<String, AdLoaderRewardedAd> mAdUnitToAdLoader;
+    @NonNull private final MoPubRewardedAdManager moPubRewardedAdManager;
 
-    public class RewardedVideoRequestListener implements AdLoader.Listener {
+    public class RewardedAdRequestListener implements AdLoader.Listener {
         public final String adUnitId;
 
-        RewardedVideoRequestListener(String adUnitId) {
+        RewardedAdRequestListener(String adUnitId) {
             this.adUnitId = adUnitId;
         }
 
         @Override
-        public void onSuccess(final AdResponse response) {
-            moPubRewardedVideoManager.onAdSuccess(response);
+        public void onResponse(@NonNull final AdResponse response) {
+            moPubRewardedAdManager.onAdSuccess(response);
         }
 
         @Override
-        public void onErrorResponse(final VolleyError volleyError) {
-            moPubRewardedVideoManager.onAdError(volleyError, adUnitId);
+        public void onErrorResponse(@NonNull final MoPubNetworkError networkError) {
+            moPubRewardedAdManager.onAdError(networkError, adUnitId);
         }
     }
 
-    RewardedAdsLoaders(@NonNull final MoPubRewardedVideoManager rewardedVideoManager){
-        moPubRewardedVideoManager  = rewardedVideoManager;
+    RewardedAdsLoaders(@NonNull final MoPubRewardedAdManager rewardedAdManager){
+        moPubRewardedAdManager = rewardedAdManager;
         mAdUnitToAdLoader = new HashMap<>();
     }
 
     @Nullable
-    Request<?> loadNextAd(@NonNull Context context,
-                          @NonNull String adUnitId,
-                          @NonNull String adUrlString,
-                          @Nullable MoPubErrorCode errorCode) {
+    MoPubRequest<?> loadNextAd(@NonNull Context context,
+                               @NonNull String adUnitId,
+                               @NonNull String adUrlString,
+                               @Nullable MoPubErrorCode errorCode) {
         Preconditions.checkNotNull(adUnitId);
         Preconditions.checkNotNull(context);
 
-        AdLoaderRewardedVideo adLoader = mAdUnitToAdLoader.get(adUnitId);
+        AdLoaderRewardedAd adLoader = mAdUnitToAdLoader.get(adUnitId);
 
         if (adLoader == null || !adLoader.hasMoreAds()) {
-            adLoader = new AdLoaderRewardedVideo(adUrlString,
-                                                 AdFormat.REWARDED_VIDEO,
+            adLoader = new AdLoaderRewardedAd(adUrlString,
+                                                 AdFormat.REWARDED_AD,
                                                  adUnitId,
                                                  context,
-                                                 new RewardedVideoRequestListener(adUnitId));
+                                                 new RewardedAdRequestListener(adUnitId));
             mAdUnitToAdLoader.put(adUnitId, adLoader);
         }
 
@@ -75,65 +75,61 @@ class RewardedAdsLoaders {
     void markFail(@NonNull final String adUnitId) {
         Preconditions.checkNotNull(adUnitId);
 
-        if (mAdUnitToAdLoader.containsKey(adUnitId)) {
-            mAdUnitToAdLoader.remove(adUnitId);
-        }
+        mAdUnitToAdLoader.remove(adUnitId);
     }
 
     void markPlayed(@NonNull final String adUnitId) {
         Preconditions.checkNotNull(adUnitId);
 
-        if (mAdUnitToAdLoader.containsKey(adUnitId)) {
-            mAdUnitToAdLoader.remove(adUnitId);
-        }
+        mAdUnitToAdLoader.remove(adUnitId);
     }
 
-    void onRewardedVideoStarted(@NonNull String adUnitId, @NonNull Context context) {
+    void onRewardedAdStarted(@NonNull String adUnitId, @NonNull Context context) {
         Preconditions.checkNotNull(adUnitId);
         Preconditions.checkNotNull(context);
 
-        AdLoaderRewardedVideo loaderRewardedVideo = mAdUnitToAdLoader.get(adUnitId);
-        if (loaderRewardedVideo == null) {
+        AdLoaderRewardedAd loaderRewardedAd = mAdUnitToAdLoader.get(adUnitId);
+        if (loaderRewardedAd == null) {
             return;
         }
 
-        loaderRewardedVideo.trackImpression(context);
+        loaderRewardedAd.trackImpression(context);
     }
 
-    void onRewardedVideoClicked(@NonNull String adUnitId, @NonNull Context context){
+    void onRewardedAdClicked(@NonNull String adUnitId, @NonNull Context context){
         Preconditions.checkNotNull(adUnitId);
         Preconditions.checkNotNull(context);
 
-        AdLoaderRewardedVideo loaderRewardedVideo = mAdUnitToAdLoader.get(adUnitId);
-        if (loaderRewardedVideo == null) {
+        AdLoaderRewardedAd loaderRewardedAd = mAdUnitToAdLoader.get(adUnitId);
+        if (loaderRewardedAd == null) {
             return;
         }
 
-        loaderRewardedVideo.trackClick(context);
+        loaderRewardedAd.trackClick(context);
     }
 
     boolean canPlay(@NonNull final String adUnitId) {
-        AdLoaderRewardedVideo loaderRewardedVideo = mAdUnitToAdLoader.get(adUnitId);
-        if (loaderRewardedVideo == null) {
+        AdLoaderRewardedAd loaderRewardedAd = mAdUnitToAdLoader.get(adUnitId);
+        if (loaderRewardedAd == null) {
             return false;
         }
 
-        AdResponse adResponse =  loaderRewardedVideo.getLastDeliveredResponse();
+        AdResponse adResponse =  loaderRewardedAd.getLastDeliveredResponse();
         return adResponse != null;
     }
 
     boolean hasMoreAds(@NonNull final String adUnitId) {
-        AdLoaderRewardedVideo loaderRewardedVideo = mAdUnitToAdLoader.get(adUnitId);
-        return loaderRewardedVideo != null && loaderRewardedVideo.hasMoreAds();
+        AdLoaderRewardedAd loaderRewardedAd = mAdUnitToAdLoader.get(adUnitId);
+        return loaderRewardedAd != null && loaderRewardedAd.hasMoreAds();
     }
 
     void creativeDownloadSuccess(@NonNull final String adUnitId){
-        AdLoaderRewardedVideo loaderRewardedVideo = mAdUnitToAdLoader.get(adUnitId);
-        if (loaderRewardedVideo == null) {
+        AdLoaderRewardedAd loaderRewardedAd = mAdUnitToAdLoader.get(adUnitId);
+        if (loaderRewardedAd == null) {
             return;
         }
 
-        loaderRewardedVideo.creativeDownloadSuccess();
+        loaderRewardedAd.creativeDownloadSuccess();
     }
 
     @Deprecated
@@ -144,7 +140,7 @@ class RewardedAdsLoaders {
 
     @Deprecated
     @VisibleForTesting
-    Map<String, AdLoaderRewardedVideo> getLoadersMap(){
+    Map<String, AdLoaderRewardedAd> getLoadersMap(){
         return mAdUnitToAdLoader;
     }
 }

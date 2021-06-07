@@ -1,3 +1,47 @@
+## Version 5.17.0 (May 11, 2021)
+- **Features**
+  - SDK binary artifacts are uploaded to Maven Central Repository. 
+  - Update AndroidX Media2 dependencies from version 1.1.1 to 1.1.3.
+  - Improve MoPub SDK modularization with 'mopub-sdk-networking' and 'mopub-sdk-util' libraries.
+  - Add ProGuard rules for AudioFocusHandler and MediaPlayer.
+
+- **Bug Fixes**
+  - Fix rare audio focus handling issue when application is in the background.
+    
+## Version 5.16.4 (March 31, 2021)
+- **Bug Fixes**
+  - Fix `InvalidStateException` when finishing VAST videos on some devices.
+
+## Version 5.16.3 (March 24, 2021)
+- **Bug Fixes**
+  - Handle WebViewClient#onRenderProcessGone for API 26+ devices regarding the VAST icon WebView so WebView crashes do not take the entire process with it.
+  - Fix rewarded video duration calculation.
+  - Fix rare `InvalidStateException` when finishing a VAST video with a companion image.
+  - Fix `UnsupportedOperationException` caused by non-hierarchical URIs.
+  - Fix release issues from 5.16.2.
+
+## Version 5.16.2 (March 18, 2021) *Deprecated*
+- **Bug Fixes**
+  - Handle WebViewClient#onRenderProcessGone for API 26+ devices regarding the VAST icon WebView so WebView crashes do not take the entire process with it.
+  - Fix rewarded video duration calculation.
+  - Fix rare `InvalidStateException` when finishing a VAST video with a companion image.
+  - Fix `UnsupportedOperationException` caused by non-hierarchical URIs.
+
+## Version 5.16.0 (February 16, 2021)
+- **Features**
+  - Add support for rewarded display ads and rewarded ads with rich media end cards. See [Integration Steps](https://developers.mopub.com/publishers/android/rewarded-ad/).
+  - Rename `MoPubRewardedVideos` to `MoPubRewardedAds` and `MoPubRewardedVideoListener` to `MoPubRewardedAdListener`. See the [API Reference](https://developers.mopub.com/publishers/reference/android/MoPub/) for more details.
+  - Add 5G cellular support.
+  - Update AndroidX Media2 dependencies from version 1.0.1 to 1.1.1.
+
+- **Bug Fixes**
+  - Fix crash when adding a theme to native recycler view layout.
+  - Fix memory leak when destroy is called on a fullscreen ad.
+  - Fix rotation for ads without an orientation specified.
+  - Fix rewarded ads being playable after they have expired.
+  - Address clickability issues with image and rewarded ads.
+  - Address `MoPubRewardedVideos.hasRewardedVideo()` returning the wrong value in certain instances.
+
 ## Version 5.15.0 (November 18, 2020)
 - **Features**
   - Update countdown animation background color to black for better visibility.

@@ -1,63 +1,47 @@
 #!/usr/bin/env groovy
-def androidAutomationProjectName = "mopub-android-automation"
-
 pipeline {
     agent any
     environment {
         ANDROID_HOME = '/Users/jenkins/Library/Android/sdk'
+        ANDROID_BUILD_TOOLS_VERSION = '30.0.3'
         projectName = """${
             sh(script: 'IFS="/" read -ra TOKENS <<< "${JOB_NAME}"; echo ${TOKENS[0]}', returnStdout: true).trim()
         }"""
+        PARSED_JOB_NAME = URLDecoder.decode(env.JOB_NAME, 'UTF-8')
     }
     stages {
-        stage('Tests') {
+        stage('Unit Tests') {
+            steps {
+                echo "Smoke Tests are running - ${PARSED_JOB_NAME}"
+                sh '''
+                        #!/bin/bash
+                        ./gradlew clean build
+                   '''
+            }
+        }
+
+        stage('Sign apk') {
             steps {
                 script {
-                    PARSED_JOB_NAME = URLDecoder.decode(env.JOB_NAME, 'UTF-8')
-                    if (projectName == androidAutomationProjectName) {
-                        stage('Internal Android automation tests') {
-                            echo "Internal Automation Tests are running - ${PARSED_JOB_NAME}"
-                            sh '''
-                                #!/bin/bash
-                                chmod +x scripts/private/android.sh
-                                scripts/private/android.sh
-                            '''
-                        }
-                        stage('External Android automation tests') {
-                            echo "External Automation Tests are running - ${PARSED_JOB_NAME}"
-                            sh '''
-                                #!/bin/bash
-                                chmod +x scripts/private/androidRT.sh
-                                scripts/private/androidRT.sh
-                            '''
-                        }
-                    } else {
-                        stage('Smoke tests') {
-                            echo "Smoke Tests are running - ${PARSED_JOB_NAME}"
-                            sh '''
-                                #!/bin/bash
-                                ./gradlew clean build
-                            '''
-                        }
-                        stage('Sign apk') {
-                            sh '$ANDROID_HOME/build-tools/29.0.2/zipalign -v -p 4 mopub-sample/build/outputs/apk/external/release/mopub-sample-external-release-unsigned.apk mopub-sample/build/outputs/apk/external/release/mopub-sample-external-release-unsigned-aligned.apk'
-                            if (fileExists('mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned.apk')) {
-                                sh '$ANDROID_HOME/build-tools/29.0.2/zipalign -v -p 4 mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned.apk mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned-aligned.apk'
-                            }
-                            withCredentials([string(credentialsId: 'android_store_key_pass', variable: 'JKS_PASS')]) {
-                                sh '$ANDROID_HOME/build-tools/29.0.2/apksigner sign --ks ~/google_play_key.jks --ks-pass pass:$JKS_PASS --out mopub-sample/build/outputs/apk/external/release/mopub-sample-external-release-signed.apk mopub-sample/build/outputs/apk/external/release/mopub-sample-external-release-unsigned-aligned.apk'
-                                if (fileExists('mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned-aligned.apk')) {
-                                    sh '$ANDROID_HOME/build-tools/29.0.2/apksigner sign --ks ~/google_play_key.jks --ks-pass pass:$JKS_PASS --out mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-signed.apk mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned-aligned.apk'
-                                }
-                            }
-                        }
-                        stage('Archive') {
-                            archiveArtifacts artifacts: 'mopub-sample/build/outputs/**/*.apk', excludes: 'mopub-sample/build/outputs/**/*unsigned.apk, mopub-sample/build/outputs/**/*aligned.apk', onlyIfSuccessful: true
-                            archiveArtifacts artifacts: 'mopub-sdk/build/outputs/aar/mopub-sdk-*.aar', onlyIfSuccessful: true
-                            archiveArtifacts artifacts: 'mopub-sdk/mopub-sdk-*/build/outputs/aar/mopub-sdk-*.aar', onlyIfSuccessful: true
+                    sh '$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS_VERSION/zipalign -v -p 4 mopub-sample/build/outputs/apk/external/release/mopub-sample-external-release-unsigned.apk mopub-sample/build/outputs/apk/external/release/mopub-sample-external-release-unsigned-aligned.apk'
+                    if (fileExists('mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned.apk')) {
+                        sh '$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS_VERSION/zipalign -v -p 4 mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned.apk mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned-aligned.apk'
+                    }
+                    withCredentials([string(credentialsId: 'android_store_key_pass', variable: 'JKS_PASS')]) {
+                        sh '$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner sign --ks ~/google_play_key.jks --ks-pass pass:$JKS_PASS --out mopub-sample/build/outputs/apk/external/release/mopub-sample-external-release-signed.apk mopub-sample/build/outputs/apk/external/release/mopub-sample-external-release-unsigned-aligned.apk'
+                        if (fileExists('mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned-aligned.apk')) {
+                            sh '$ANDROID_HOME/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner sign --ks ~/google_play_key.jks --ks-pass pass:$JKS_PASS --out mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-signed.apk mopub-sample/build/outputs/apk/internal/release/mopub-sample-internal-release-unsigned-aligned.apk'
                         }
                     }
                 }
+            }
+        }
+
+        stage('Archive') {
+            steps {
+                archiveArtifacts artifacts: 'mopub-sample/build/outputs/**/*.apk', excludes: 'mopub-sample/build/outputs/**/*unsigned.apk, mopub-sample/build/outputs/**/*aligned.apk', onlyIfSuccessful: true
+                archiveArtifacts artifacts: 'mopub-sdk/build/outputs/aar/mopub-sdk-*.aar', onlyIfSuccessful: true
+                archiveArtifacts artifacts: 'mopub-sdk/mopub-sdk-*/build/outputs/aar/mopub-sdk-*.aar', onlyIfSuccessful: true
             }
         }
     }
