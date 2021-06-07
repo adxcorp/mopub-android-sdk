@@ -61,14 +61,14 @@ public class Utils {
     }
 
     public static void hideNavigationBar(@NonNull final Activity activity) {
-        Preconditions.checkNotNull(activity);
-
-        final Window window = activity.getWindow();
-        if (window != null) {
-            final View view = window.getDecorView();
-            hideNavigation(view);
-            view.setOnSystemUiVisibilityChangeListener(createHideNavigationListener(view));
-        }
+//        Preconditions.checkNotNull(activity);
+//
+//        final Window window = activity.getWindow();
+//        if (window != null) {
+//            final View view = window.getDecorView();
+//            hideNavigation(view);
+//            view.setOnSystemUiVisibilityChangeListener(createHideNavigationListener(view));
+//        }
     }
 
     static View.OnSystemUiVisibilityChangeListener createHideNavigationListener(
